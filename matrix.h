@@ -1,6 +1,9 @@
-#ifndef matrix_h
-#define matrix_h
+#ifndef MATRIX_H
+#define MATRIX_H
 
+// Quelle: https://www.drdobbs.com/a-c-matrix-template-class/184403323?pgno=1
+
+// Standartbibliothek
 #include <vector>    // vector
 #include <cstdint>   // uint...
 #include <stdexcept> // exceptions
@@ -25,6 +28,10 @@ public:
     {
     }
 };
+
+
+// DECLARATIONS
+
 
 template <class T>
 class kahn_sum
@@ -55,18 +62,16 @@ private:
 template <class T>
 class Matrix
 {
-private:
-    std::vector<T> elements; // array of elements
-
-public:
-    const uint32_t rows; // number of rows
-    const uint32_t cols; // number of columns
+    std::vector<T> elements; // array of elements (private)
 
 protected:
     // range check function for matrix access
     void range_check(uint32_t i, uint32_t j) const;
 
 public:
+    const uint32_t rows; // number of rows
+    const uint32_t cols; // number of columns
+
     T &operator()(uint32_t i, uint32_t j)
     {
 #ifdef RANGE_CHECK
@@ -74,6 +79,7 @@ public:
 #endif
         return elements[i * cols + j];
     }
+
     const T &operator()(uint32_t i, uint32_t j) const
     {
 #ifdef RANGE_CHECK
@@ -81,6 +87,7 @@ public:
 #endif
         return elements[i * cols + j];
     }
+
     const T &element(uint32_t i, uint32_t j) const
     {
 #ifdef RANGE_CHECK
@@ -88,6 +95,7 @@ public:
 #endif
         return elements[i * cols + j];
     }
+
     T &element(uint32_t i, uint32_t j)
     {
 #ifdef RANGE_CHECK
@@ -96,18 +104,17 @@ public:
         return elements[i * cols + j];
     }
 
-public:
     // constructors
     Matrix(uint32_t rows, uint32_t columns, const T *elements = 0);
-    Matrix(const Matrix<T> &);
+    Matrix(const Matrix<T> &M);
     // destructor
     ~Matrix();
 
     // assignment
-    Matrix<T> &operator=(const Matrix<T> &);
+    Matrix<T> &operator=(const Matrix<T> &M);
 
     // comparison
-    bool operator==(const Matrix<T> &) const;
+    bool operator==(const Matrix<T> &M) const;
     bool iszero() const;
     bool operator!() const
     {
@@ -129,8 +136,8 @@ public:
     Matrix<T> operator+() const;
 
     // addition/subtraction
-    Matrix<T> &operator+=(const Matrix<T> &);
-    Matrix<T> &operator-=(const Matrix<T> &);
+    Matrix<T> &operator+=(const Matrix<T> &M);
+    Matrix<T> &operator-=(const Matrix<T> &M);
     Matrix<T> operator+(const Matrix<T> &M) const
     {
         return Matrix<T>(*this).operator+=(M);
@@ -141,7 +148,7 @@ public:
     }
 
     // matrix multiplication
-    Matrix<T> operator*(const Matrix<T> &)const;
+    Matrix<T> operator*(const Matrix<T> &M)const;
     Matrix<T> &operator*=(const Matrix<T> &M)
     {
         return *this = *this * M;
@@ -149,7 +156,7 @@ public:
 
     // matrix division
     Matrix<T> leftdiv(const Matrix<T> &) const;
-    Matrix<T> rightdiv(const Matri<T> &D) const
+    Matrix<T> rightdiv(const Matrix<T> &D) const
     {
         return transpose().leftdiv(D.transpose()).transpose();
     }
@@ -157,7 +164,7 @@ public:
     {
         return rightdiv(D);
     }
-    Matrix<T> &operator/=(const Matrix<T>)
+    Matrix<T> &operator/=(const Matrix<T> &M)
     {
         return *this = *this / M;
     }
@@ -170,7 +177,7 @@ public:
     // these member functions are only valid for squares
     Matrix<T> inverse() const;
     Matrix<T> pow(uint32_t exp) const;
-    Matrix<T> identidy() const;
+    Matrix<T> identity() const;
     bool isidentity() const;
 
     // vector operations
@@ -187,5 +194,253 @@ public:
         return transpose();
     }
 };
+
+
+// DEFINITIONS
+
+
+template <class T>
+Matrix<T>::Matrix(uint32_t rows, unsigned cols, const T *elements) : rows(rows), cols(cols), elements(rows * cols, T(0.0))
+{
+    if (rows == 0 | cols == 0)
+        throw std::range_error("attempt to create a degenerate matrix");
+
+    // initialize from array
+    if (elements)
+        for (uint32_t i = 0; i < rows * cols; i++)
+            this->elements[i] = elements[i];
+}
+
+template <class T>
+Matrix<T>::Matrix(const Matrix<T> &cp) : rows(cp.rows), cols(cp.cols), elements(cp.elements) {}
+
+template <class T>
+Matrix<T>::~Matrix() {}
+
+template <class T>
+Matrix<T> &Matrix<T>::operator=(const Matrix<T> &cp)
+{
+    if (cp.rows != rows && cp.cols != cols)
+        throw std::domain_error("matrix op= not of same order");
+    for (uint32_t i = 0; i < rows * cols; i++)
+        elements[i] = cp.elements[i];
+    return *this;
+}
+
+template <class T>
+void Matrix<T>::range_check(uint32_t i, uint32_t j) const
+{
+    if (rows <= i)
+        throw std::range_error("matrix access row out of range");
+    if (cols <= j)
+        throw std::range_error("matrix access col out of range");
+}
+
+
+
+// TODO:
+template <class T>
+bool Matrix<T>::operator==(const Matrix<T>& A) const {}
+
+template <class T>
+bool Matrix<T>::iszero() const {}
+
+template <class T>
+Matrix<T>& Matrix<T>::operator*=(const T& a) {}
+
+template <class T>
+Matrix<T>& Matrix<T>::operator/=(const T& a) {}
+
+/*template <class T>
+Matrix<T> Matrix<T>::operator-(const Matrix<T>& M) const {} // Argument selbstständig hinzugefügt, richtig? */ // already defined in template class
+
+/*template <class T>
+Matrix<T> Matrix<T>::operator+(const Matrix<T>& M) const {} */ // already defined in template class
+
+/*template <class T>
+Matrix<T> Matrix<T>::operator*(const T& a) const {} // scalar multiplication */ // already defined in template class
+
+template <class T>
+Matrix<T> Matrix<T>::operator*(const Matrix<T>& M) const {} // matrix multiplication
+
+template <class T>
+Matrix<T>& Matrix<T>::operator+=(const Matrix<T>& M) {}
+
+template <class T>
+Matrix<T>& Matrix<T>::operator-=(const Matrix<T>& M) {}
+
+template <class T>
+Matrix<T> Matrix<T>::minor(unsigned i, unsigned j) const {}
+
+template <class T>
+T Matrix<T>::minor_det(unsigned i, unsigned j) const {}
+
+template <class T>
+T Matrix<T>::det() const {}
+
+template <class T>
+Matrix<T> Matrix<T>::leftdiv(const Matrix<T> &D) const
+{
+    const Matrix<T> &N = *this;
+
+    if (N.rows != D.rows)
+        throw std::domain_error("matrix divide: incompatible orders");
+
+    Matrix<T> Q(D.cols, N.cols); // quotient matrix
+
+    if (N.cols > 1)
+    {
+        // break this down for each column of the numerator
+        for (uint32_t j = 0; j < Q.cols; j++)
+            Q.setcol(j, N.getcol(j).leftdiv(D)); // note: recursive
+        return Q;
+    }
+
+    // from here on, N.col == 1
+
+    if (D.rows < D.cols)
+        throw underdetermined();
+
+    if (D.rows > D.cols)
+    {
+        bool solution = false;
+        for (uint32_t i = 0; i < D.rows; i++)
+        {
+            Matrix<T> D2 = D.delrow(i); // delete a row from the matrix
+            Matrix<T> N2 = N.delrow(i);
+            Matrix<T> Q2(Q);
+            try
+            {
+                Q2 = N2.leftdiv(D2);
+            }
+            catch (underdetermined x)
+            {
+                continue; // try again with next row
+            }
+            if (!solution)
+            {
+                // this is our possible solution
+                solution = true;
+                Q = Q2;
+            }
+            else
+            {
+                // do the solutions agree=
+                if (Q != Q2)
+                    throw overdetermined();
+            }
+        }
+        if (!solution)
+            throw underdetermined();
+        return Q;
+    }
+
+    // D.rows == D.cols && N.cols == 1
+    // use Kramer's Rule
+    //
+    // D is a square matrix of order N x N
+    // N is a matrix of order N x 1
+
+    const T T0(0.0); // additive identity
+
+    if (D.cols <= 3)
+    {
+        T ddet = D.det();
+        if (ddet == T0)
+            throw underdetermined();
+        for (uint32_t j = 0; j < D.cols; j++)
+        {
+            Matrix<T> A(D); // make a copy of the D matrix
+            // replace column with numerator vector
+            A.setcol(j, N);
+            Q(j, 0) = A.det() / ddet;
+        }
+    }
+    else
+    {
+        // this method optimizes the determinant calculations
+        // by saving a cofactors used in calculating the
+        // denominator determinant.
+        kahn_sum<T> sum;
+        std::vector<T> cofactors(D.cols); // save cofactors
+        for (uint32_t j = 0; j < D.cols; j++)
+        {
+            T c = D.minor_det(0, j);
+            cofactors[j] = c;
+            T a = D(0, j);
+            if (a != T0)
+            {
+                a *= c;
+                if (j % 2)
+                    sum -= a;
+                else
+                    sum += a;
+            }
+        }
+        T ddet = sum;
+        if (ddet == T0)
+            throw underdetermined();
+        for (uint32_t j = 0; j < D.cols; j++)
+        {
+            Matrix<T> A(D);
+            A.setcol(j, N);
+            kahn_sum<T> ndet;
+            for (uint32_t k = 0; k < D.cols; k++)
+            {
+                T a = A(0, k);
+                if (a != T0)
+                {
+                    if (k == j)
+                        a *= cofactors[k]; // use previously calculated cofactor
+                    else
+                        a *= A.minor_det(0, k); // calculate minor's determinant
+                    if (k % 2)
+                        ndet -= a;
+                    else
+                        ndet += a;
+                }
+            }
+            Q(j, 0) = T(ndet) / ddet;
+        }
+    }
+    return Q;
+}
+
+template <class T>
+Matrix<T> Matrix<T>::inverse() const {}
+
+template <class T>
+Matrix<T> Matrix<T>::getrow(unsigned i) const {}
+
+template <class T>
+Matrix<T> Matrix<T>::getcol(unsigned j) const {}
+
+template <class T>
+Matrix<T> Matrix<T>::delcol(unsigned j) const {}
+
+template <class T>
+Matrix<T> Matrix<T>::delrow(unsigned i) const {}
+
+template <class T>
+Matrix<T>& Matrix<T>::setcol(unsigned j, const Matrix<T>& C) {}
+
+template <class T>
+Matrix<T>& Matrix<T>::setrow(unsigned i, const Matrix<T>& R) {}
+
+template <class T>
+Matrix<T> Matrix<T>::identity() const {}
+
+template <class T>
+bool Matrix<T>::isidentity() const {}
+
+template <class T>
+Matrix<T> Matrix<T>::pow(uint32_t exp) const {}
+
+template <class T>
+Matrix<T> Matrix<T>::transpose() const {}
+
+/*template <class T>
+Matrix<T> Matrix<T>::pow(const Matrix<T>& M, int exp) {}*/ // Was not declared in template class
+
 
 #endif // matrix.h
