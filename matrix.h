@@ -29,9 +29,7 @@ public:
     }
 };
 
-
 // DECLARATIONS
-
 
 template <class T>
 class kahn_sum
@@ -148,7 +146,7 @@ public:
     }
 
     // matrix multiplication
-    Matrix<T> operator*(const Matrix<T> &M)const;
+    Matrix<T> operator*(const Matrix<T> &M) const;
     Matrix<T> &operator*=(const Matrix<T> &M)
     {
         return *this = *this * M;
@@ -195,9 +193,7 @@ public:
     }
 };
 
-
 // DEFINITIONS
-
 
 template <class T>
 Matrix<T>::Matrix(uint32_t rows, unsigned cols, const T *elements) : rows(rows), cols(cols), elements(rows * cols, T(0.0))
@@ -236,38 +232,39 @@ void Matrix<T>::range_check(uint32_t i, uint32_t j) const
         throw std::range_error("matrix access col out of range");
 }
 
-
-
 // TODO:
 template <class T>
-bool Matrix<T>::operator==(const Matrix<T>& A) const {}
+bool Matrix<T>::operator==(const Matrix<T> &A) const {}
 
 template <class T>
 bool Matrix<T>::iszero() const {}
 
 template <class T>
-Matrix<T>& Matrix<T>::operator*=(const T& a) {}
+Matrix<T> &Matrix<T>::operator*=(const T &a) {}
 
 template <class T>
-Matrix<T>& Matrix<T>::operator/=(const T& a) {}
+Matrix<T> &Matrix<T>::operator/=(const T &a) {}
 
 /*template <class T>
-Matrix<T> Matrix<T>::operator-(const Matrix<T>& M) const {} // Argument selbstständig hinzugefügt, richtig? */ // already defined in template class
+Matrix<T> Matrix<T>::operator-(const Matrix<T>& M) const {} // Argument selbstständig hinzugefügt, richtig? */
+// already defined in template class
 
 /*template <class T>
-Matrix<T> Matrix<T>::operator+(const Matrix<T>& M) const {} */ // already defined in template class
+Matrix<T> Matrix<T>::operator+(const Matrix<T>& M) const {} */
+// already defined in template class
 
 /*template <class T>
-Matrix<T> Matrix<T>::operator*(const T& a) const {} // scalar multiplication */ // already defined in template class
+Matrix<T> Matrix<T>::operator*(const T& a) const {} // scalar multiplication */
+// already defined in template class
 
 template <class T>
-Matrix<T> Matrix<T>::operator*(const Matrix<T>& M) const {} // matrix multiplication
+Matrix<T> Matrix<T>::operator*(const Matrix<T> &M) const {} // matrix multiplication
 
 template <class T>
-Matrix<T>& Matrix<T>::operator+=(const Matrix<T>& M) {}
+Matrix<T> &Matrix<T>::operator+=(const Matrix<T> &M) {}
 
 template <class T>
-Matrix<T>& Matrix<T>::operator-=(const Matrix<T>& M) {}
+Matrix<T> &Matrix<T>::operator-=(const Matrix<T> &M) {}
 
 template <class T>
 Matrix<T> Matrix<T>::minor(unsigned i, unsigned j) const {}
@@ -422,10 +419,10 @@ template <class T>
 Matrix<T> Matrix<T>::delrow(unsigned i) const {}
 
 template <class T>
-Matrix<T>& Matrix<T>::setcol(unsigned j, const Matrix<T>& C) {}
+Matrix<T> &Matrix<T>::setcol(unsigned j, const Matrix<T> &C) {}
 
 template <class T>
-Matrix<T>& Matrix<T>::setrow(unsigned i, const Matrix<T>& R) {}
+Matrix<T> &Matrix<T>::setrow(unsigned i, const Matrix<T> &R) {}
 
 template <class T>
 Matrix<T> Matrix<T>::identity() const {}
@@ -440,7 +437,7 @@ template <class T>
 Matrix<T> Matrix<T>::transpose() const {}
 
 /*template <class T>
-Matrix<T> Matrix<T>::pow(const Matrix<T>& M, int exp) {}*/ // Was not declared in template class
-
+Matrix<T> Matrix<T>::pow(const Matrix<T>& M, int exp) {}*/
+// Was not declared in template class
 
 #endif // matrix.h
