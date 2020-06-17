@@ -51,7 +51,7 @@ auto *y = new Matrix<double>(4, 4); // exact size still unknown! TODO (gets fill
 int main(void)
 {
     // doesnt work at the moment:
-    for (size_t i = 0; i < rounds; i++)
+    /*for (size_t i = 0; i < rounds; i++)
     {
         // Prediction
         *x = (*A) * (*x);                      // Prädizierter Zustand aus Bisherigem und System
@@ -65,5 +65,8 @@ int main(void)
 
         *x = *x + ((*K) * (*y));            // aktualisieren des Systemzustands
         *P = ((*I) - ((*K) * (*H))) * (*P); // aktualisieren der Kovarianz
-    }
+    }*/
+
+    std::cout << sizeof(uint8_t) << std::endl;
+
 }

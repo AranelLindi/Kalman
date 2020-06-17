@@ -1,0 +1,8 @@
+# vscode folder
+.vscode
+
+# pre compiled headers
+*.gch
+
+# binarys
+*.out

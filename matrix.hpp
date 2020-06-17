@@ -234,16 +234,46 @@ void Matrix<T>::range_check(uint32_t i, uint32_t j) const
 
 // TODO:
 template <class T>
-bool Matrix<T>::operator==(const Matrix<T> &A) const {}
+bool Matrix<T>::operator==(const Matrix<T> &A) const
+{
+    const Matrix<T> &N = *this;
+
+    // check dimension:
+    if (N.rows != A.rows | N.cols != A.cols)
+        return false;
+
+    // every field must be equal to its equivalent
+    for (uint32_t i = 0; i < rows * cols; i++)
+        if (N.elements[i] != A.elements[i])
+            return false;
+    return true;
+}
 
 template <class T>
-bool Matrix<T>::iszero() const {}
+bool Matrix<T>::iszero() const
+{
+    const Matrix<T> &N = *this;
+    for (uint32_t i = 0; i < rows * cols; i++)
+        if (N.elements[i] != 0)
+            return false;
+    return true;
+} // O(n)
 
 template <class T>
-Matrix<T> &Matrix<T>::operator*=(const T &a) {}
+Matrix<T> &Matrix<T>::operator*=(const T &a)
+{
+    for (uint32_t i = 0; i < rows * cols; i++)
+        this->elements[i] *= a;
+    return this;
+} // O(n) // not yet tested!
 
 template <class T>
-Matrix<T> &Matrix<T>::operator/=(const T &a) {}
+Matrix<T> &Matrix<T>::operator/=(const T &a)
+{
+    for (uint32_t i = 0; i < rows * cols; i++)
+        this->elements[i] /= a;
+    return this;
+} // O(n) // not yet tested!
 
 /*template <class T>
 Matrix<T> Matrix<T>::operator-(const Matrix<T>& M) const {} // Argument selbstständig hinzugefügt, richtig? */
@@ -261,10 +291,20 @@ template <class T>
 Matrix<T> Matrix<T>::operator*(const Matrix<T> &M) const {} // matrix multiplication
 
 template <class T>
-Matrix<T> &Matrix<T>::operator+=(const Matrix<T> &M) {}
+Matrix<T> &Matrix<T>::operator+=(const Matrix<T> &M)
+{
+    for (uint32_t i = 0; i < rows * cols; i++)
+        this->elements[i] += M.elements[i];
+    return this;
+} // O(n) // not yet tested!
 
 template <class T>
-Matrix<T> &Matrix<T>::operator-=(const Matrix<T> &M) {}
+Matrix<T> &Matrix<T>::operator-=(const Matrix<T> &M)
+{
+    for (uint32_t i = 0; i < rows * cols; i++)
+        this->elements[i] -= M.elements[i];
+    return this;
+} // O(n) // not yet tested!
 
 template <class T>
 Matrix<T> Matrix<T>::minor(unsigned i, unsigned j) const {}
@@ -404,7 +444,13 @@ Matrix<T> Matrix<T>::leftdiv(const Matrix<T> &D) const
 }
 
 template <class T>
-Matrix<T> Matrix<T>::inverse() const {}
+Matrix<T> Matrix<T>::inverse() const // TODO!
+{
+    //if (this->det == 0)
+    //    throw std::logic_error("singularity! det(M) == 0! matrix cannot be inverted");
+    
+
+}
 
 template <class T>
 Matrix<T> Matrix<T>::getrow(unsigned i) const {}
@@ -425,19 +471,53 @@ template <class T>
 Matrix<T> &Matrix<T>::setrow(unsigned i, const Matrix<T> &R) {}
 
 template <class T>
-Matrix<T> Matrix<T>::identity() const {}
+Matrix<T> Matrix<T>::identity() const
+{
+    if (rows != cols)
+        throw std::logic_error("calc identity requires N x N - matrix (squared matrix)");
+
+    uint8_t _identity_arr[rows * cols] = {0}; // uint8_t is attempt to minimize using storage ; not sure if it compiles!
+
+    for (uint32_t i = 0; i < rows * cols; i += (rows + 1))
+        _identity_arr[i] = 1;
+
+    Matrix<T> _identity(rows, cols, _identity_arr);
+    return _identity;
+} // O(rows) / O(cols) // not yet tested!
 
 template <class T>
-bool Matrix<T>::isidentity() const {}
+bool Matrix<T>::isidentity() const { return 0; } // return-dummy for compiler
 
 template <class T>
-Matrix<T> Matrix<T>::pow(uint32_t exp) const {}
+Matrix<T> Matrix<T>::pow(uint32_t exp) const
+{
+    if (rows != cols)
+        throw std::logic_error("calc pow requires N x N - matrix (squared matrix)");
+
+    if (exp == 0)
+        return this->identity(); // A^0 = E
+    else if (exp == 1)
+        return this; // A^1 = A
+    else
+    {                                  // A^n = A*A*A*...(n -times)...*A*A
+        return (*this) * pow(exp - 1); // recursive!
+    }
+} // O(exp) // not yet tested!
 
 template <class T>
-Matrix<T> Matrix<T>::transpose() const {}
+Matrix<T> Matrix<T>::transpose() const
+{
+    // in-situ is no option, because original matrix will be used farther
+    Matrix<T> _clone(cols, rows, &(this->elements[0])); // this was discussed in Scott Meyers' Effective STL, that you can do &vec[0] to get the address of the first element of an std::vector (https://stackoverflow.com/questions/4289612/getting-array-from-stdvector)
 
-/*template <class T>
-Matrix<T> Matrix<T>::pow(const Matrix<T>& M, int exp) {}*/
-// Was not declared in template class
+#pragma omp parallel for // helpful?
+    for (uint32_t n = 0; n < rows * cols; n++)
+    {
+        uint32_t i = n / cols;
+        uint32_t j = n % cols;
+        _clone.elements[n] = this->elements[rows * j + i];
+    }
+    return _clone;
+} // O(rows * cols) // not yet tested!
 
 #endif // matrix.h
