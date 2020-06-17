@@ -5,10 +5,12 @@
 #define dt 0      // Zeitschritt
 #define rounds 10 // iterations to make
 
-// lambdas
-const auto bq = [](double i) -> double { return (i * i * i * i); }; // biquadrate
-const auto cu = [](double i) -> double { return (i * i * i); };     // cubic
-const auto sq = [](double i) -> double { return (i * i); };         // square
+// lambdas (constexpr in this case needs C++17! only possible until variables will be calculated!)
+constexpr auto sq = [](double i) noexcept -> double { return (i * i); };         // square
+constexpr auto cu = [](double i) noexcept -> double { return (sq(i) * i); };     // cubic
+constexpr auto bq = [](double i) noexcept -> double { return (sq(i) * sq(i)); }; // biquadrate
+
+
 
 // define const 1D Arrays to "convert" them into 2D matrixes
 //                   x  y   x'  y'
@@ -51,7 +53,7 @@ auto *y = new Matrix<double>(4, 4); // exact size still unknown! TODO (gets fill
 int main(void)
 {
     // doesnt work at the moment:
-    /*for (size_t i = 0; i < rounds; i++)
+    for (size_t i = 0; i < rounds; i++)
     {
         // Prediction
         *x = (*A) * (*x);                      // Prädizierter Zustand aus Bisherigem und System
@@ -65,8 +67,5 @@ int main(void)
 
         *x = *x + ((*K) * (*y));            // aktualisieren des Systemzustands
         *P = ((*I) - ((*K) * (*H))) * (*P); // aktualisieren der Kovarianz
-    }*/
-
-    std::cout << sizeof(uint8_t) << std::endl;
-
+    }
 }

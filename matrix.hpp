@@ -247,7 +247,7 @@ bool Matrix<T>::operator==(const Matrix<T> &A) const
         if (N.elements[i] != A.elements[i])
             return false;
     return true;
-}
+} // O(rows * cols)
 
 template <class T>
 bool Matrix<T>::iszero() const
@@ -483,10 +483,12 @@ Matrix<T> Matrix<T>::identity() const
 
     Matrix<T> _identity(rows, cols, _identity_arr);
     return _identity;
-} // O(rows) / O(cols) // not yet tested!
+} // O(rows * cols) // not yet tested!
 
 template <class T>
-bool Matrix<T>::isidentity() const { return 0; } // return-dummy for compiler
+bool Matrix<T>::isidentity() const { 
+    return (this->identity() == this); 
+} // O((rows*cols)^2) // not yet tested!
 
 template <class T>
 Matrix<T> Matrix<T>::pow(uint32_t exp) const
