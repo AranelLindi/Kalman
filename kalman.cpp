@@ -5,14 +5,12 @@
 #define dt 0      // Zeitschritt
 #define rounds 10 // iterations to make
 
-// lambdas (constexpr in this case needs C++17! only possible until variables will be calculated!)
+// lambdas (constexpr in this case needs C++17! only possible until variables will be used!)
 constexpr auto sq = [](double i) noexcept -> double { return (i * i); };         // square
 constexpr auto cu = [](double i) noexcept -> double { return (sq(i) * i); };     // cubic
 constexpr auto bq = [](double i) noexcept -> double { return (sq(i) * sq(i)); }; // biquadrate
 
-
-
-// define const 1D Arrays to "convert" them into 2D matrixes
+// define const 1D Arrays to "convert" them into "2D" matrices
 //                   x  y   x'  y'
 const double x_[] = {0, 0, 10, 0};
 const double P_[] = {10, 0, 0, 0,
@@ -36,19 +34,19 @@ const double I_[] = {1, 0, 0, 0,
                      0, 0, 1, 0,
                      0, 0, 0, 1};
 
-// initialize matrixes
-auto *x = new Matrix<double>(4, 1, x_);
-auto *P = new Matrix<double>(4, 4, P_);
-auto *A = new Matrix<double>(4, 4, A_);
-auto *H = new Matrix<double>(2, 4, H_);
-auto *R = new Matrix<double>(2, 2, R_);
-auto *Q = new Matrix<double>(4, 4, Q_);
-auto *I = new Matrix<double>(4, 4, I_); // Identity matrix
+// initialize matrices
+Matrix<double> x(4, 1, x_);
+Matrix<double> P(4, 4, P_);
+Matrix<double> A(4, 4, A_);
+Matrix<double> H(2, 4, H_);
+Matrix<double> R(2, 2, R_);
+Matrix<double> Q(4, 4, Q_);
+Matrix<double> I(4, 4, I_); // Identity matrix
 
-auto *Z = new Matrix<double>(4, 4); // exact size still unknown! TODO (gets filling later...)
-auto *S = new Matrix<double>(4, 4); // exact size still unknown! TODO (gets filling later...)
-auto *K = new Matrix<double>(4, 4); // exact size still unknown! TODO (gets filling later...)
-auto *y = new Matrix<double>(4, 4); // exact size still unknown! TODO (gets filling later...)
+Matrix<double> Z(4, 4); // exact size still unknown! TODO (gets filling later...)
+Matrix<double> S(4, 4); // exact size still unknown! TODO (gets filling later...)
+Matrix<double> K(4, 4); // exact size still unknown! TODO (gets filling later...)
+Matrix<double> y(4, 4); // exact size still unknown! TODO (gets filling later...)
 
 int main(void)
 {
@@ -56,16 +54,18 @@ int main(void)
     for (size_t i = 0; i < rounds; i++)
     {
         // Prediction
-        *x = (*A) * (*x);                      // Prädizierter Zustand aus Bisherigem und System
-        *P = (((*A) * (*P)) * (~(*A))) + (*Q); // Prädizieren der Kovarianz // set brackets to keep correkt order (multiplication)
+        x = A * x;                // Prädizierter Zustand aus Bisherigem und System
+        P = ((A * P) * (~A)) + Q; // Prädizieren der Kovarianz // set brackets to keep correkt order (multiplication)
 
         // Correction
         // Z =  // Z is getting there new record from measurements (sensors)
-        *y = (*Z) - ((*H) * (*x));               // Innovation aus Messwertdifferenz
-        *S = ((((*H) * (*P)) * (~(*H))) + (*R)); // Innovationskovarianz // set brackets to keep correct order (multiplication)
-        *K = ((*P) * (~(*H)) * (*S).inverse());  // Filter-Matrix (Kalman-Gain)
+        y = Z - (H * x);              // Innovation aus Messwertdifferenz
+        S = (((H * P) * (~H)) + R);   // Innovationskovarianz // set brackets to keep correct order (multiplication)
+        K = (P * (~H) * S.inverse()); // Filter-Matrix (Kalman-Gain)
 
-        *x = *x + ((*K) * (*y));            // aktualisieren des Systemzustands
-        *P = ((*I) - ((*K) * (*H))) * (*P); // aktualisieren der Kovarianz
+        x = x + (K * y);       // aktualisieren des Systemzustands
+        P = (I - (K * H)) * P; // aktualisieren der Kovarianz
     }
+
+    // sizeof(Matrix<double>) == 32 Bytes
 }
