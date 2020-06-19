@@ -68,4 +68,6 @@ int main(void)
     }
 
     // sizeof(Matrix<double>) == 32 Bytes
+
+    //Matrix<int> i(2,2, (const int[]){0,1,2,3}); // passing anonymous array as argument (C++11)
 }

@@ -3,7 +3,7 @@
 
 // Standartbibliothek
 #include <vector>    // vector
-#include <cstdint>   // uint...
+#include <cstdint>   // uint types
 #include <stdexcept> // exceptions
 #include <cmath>     // pow
 
@@ -31,18 +31,18 @@ public:
 // DECLARATIONS
 
 template <class T>
-class kahn_sum
+class kahan_sum
 { // implements Kahn Summation method
 public:
-    kahn_sum() : sum(0.0), cor(0.0) {}
-    kahn_sum<T> &operator+=(const T &val)
+    kahan_sum() : sum(0.0), cor(0.0) {}
+    kahan_sum<T> &operator+=(const T &val)
     {
         T old_sum = sum;
         T next = val - cor;
         cor = ((sum += next) - old_sum) - next;
         return *this;
     }
-    kahn_sum<T> &operator-=(const T &val)
+    kahan_sum<T> &operator-=(const T &val)
     {
         T old_sum = sum;
         T next = val + cor;
@@ -210,7 +210,7 @@ template <class T>
 Matrix<T>::Matrix(const Matrix<T> &cp) : rows(cp.rows), cols(cp.cols), elements(cp.elements) {}
 
 template <class T>
-Matrix<T>::~Matrix() {} // atm not neccessary, because there is no custom allocation or something
+Matrix<T>::~Matrix() {} // atm not neccessary, bc there is no custom allocation or something
 
 template <class T>
 Matrix<T> &Matrix<T>::operator=(const Matrix<T> &cp)
@@ -269,6 +269,9 @@ Matrix<T> &Matrix<T>::operator*=(const T &a)
 template <class T>
 Matrix<T> &Matrix<T>::operator/=(const T &a)
 {
+    if (a == 0)
+        throw std::logic_error("matrix scalar division: divide by zero");
+
     for (uint32_t i = 0; i < rows * cols; i++)
         this->elements[i] /= a;
     return this;
@@ -280,6 +283,11 @@ Matrix<T> Matrix<T>::operator*(const Matrix<T> &M) const {} // matrix multiplica
 template <class T>
 Matrix<T> &Matrix<T>::operator+=(const Matrix<T> &M)
 {
+    const Matrix<T> &N = *this;
+
+    if (N.cols != M.cols || N.rows != M.rows)
+        throw std::domain_error("matrix addition: incompatible orders");
+
     for (uint32_t i = 0; i < rows * cols; i++)
         this->elements[i] += M.elements[i];
     return *this;
@@ -288,8 +296,14 @@ Matrix<T> &Matrix<T>::operator+=(const Matrix<T> &M)
 template <class T>
 Matrix<T> &Matrix<T>::operator-=(const Matrix<T> &M)
 {
+    const Matrix<T> &N = *this;
+
+    if (N.cols != M.cols || N.rows != M.rows)
+        throw std::domain_error("matrix subtraction: incompatible orders");
+
     for (uint32_t i = 0; i < rows * cols; i++)
         this->elements[i] -= M.elements[i];
+
     return *this;
 } // O(n) // not yet tested!
 
@@ -346,7 +360,7 @@ Matrix<T> Matrix<T>::minor(unsigned i, unsigned j) const
 } // O(n²) // not yet tested! // runtime isnt correct!
 
 template <class T>
-T Matrix<T>::minor_det(unsigned i, unsigned j) const
+T Matrix<T>::minor_det(unsigned i, unsigned j) const // guess it gets only 1x1 matrices; NO!
 {
 #ifdef RANGE_CHECK
     range_check(i, j);
@@ -359,13 +373,20 @@ T Matrix<T>::minor_det(unsigned i, unsigned j) const
     _modM = _modM.delcol(i);
     _modM = _modM.delrow(j);*/
 
-    return std::pow(-1, i + j) * N(i, j);
+    const auto factor = [](uint32_t sum) noexcept -> T {
+        if (sum % 2 == 0)
+            return 1;
+        else
+            return -1;
+    };
+
+    return factor(i + j) * N(i, j);
 } // O(1) // not yet tested!
 
 template <class T>
 T Matrix<T>::det() const
 {
-    if (rows != cols)
+    /*if (rows != cols)
         throw std::domain_error("matrix determinant: incompatible orders");
 
     const Matrix<T> &N = *this; // N is a square matrix
@@ -373,7 +394,7 @@ T Matrix<T>::det() const
     if (N.rows == 1)
         return N(0, 0);
     else
-        return std::pow(-1, i + j) * (N.delcol(0).delrow(0)).det(); // recursive!
+        return std::pow(-1, i + j) * (N.delcol(0).delrow(0)).det(); // recursive!*/
 } // Laplace Expansion O(n!) !! -> efficient for max. 5x5 matrices! TODO: Implement a more efficient algorithm for bigger matrices
 
 template <class T>
@@ -457,7 +478,7 @@ Matrix<T> Matrix<T>::leftdiv(const Matrix<T> &D) const
     else
     {
         // this method optimizes the determinant calculations by saving a cofactors used in calculating the denominator determinant.
-        kahn_sum<T> sum;
+        kahan_sum<T> sum;
         std::vector<T> cofactors(D.cols); // save cofactors
         for (uint32_t j = 0; j < D.cols; j++)
         {
@@ -480,7 +501,7 @@ Matrix<T> Matrix<T>::leftdiv(const Matrix<T> &D) const
         {
             Matrix<T> A(D);
             A.setcol(j, N);
-            kahn_sum<T> ndet;
+            kahan_sum<T> ndet;
             for (uint32_t k = 0; k < D.cols; k++)
             {
                 T a = A(0, k);
@@ -514,10 +535,9 @@ Matrix<T> Matrix<T>::inverse() const // TODO!
     if (_det == 0)
         throw std::logic_error("cannot calculate inverse matrix with det() == 0");
 
-    T _num = 1/_det;
+    T _num = 1 / _det;
 
-    // here: det() prooves also if matrix is squared!
-
+    // here: det() checks also if N is squared!
 
     // find adjoint matrix
     // Matrix<T> adjoint() // use method from leftdiv inkl. kahan summation method!
@@ -649,17 +669,20 @@ Matrix<T> &Matrix<T>::setrow(unsigned i, const Matrix<T> &R)
 template <class T>
 Matrix<T> Matrix<T>::identity() const
 {
-    if (rows != cols)
+    const Matrix<T>& N = *this;
+
+    if (N.rows != N.cols)
         throw std::domain_error("matrix identity: incompatible orders");
 
-    uint8_t _identity_arr[rows * cols] = {0}; // uint8_t is attempt to minimize using storage ; not sure if it compiles!
+    Matrix<T> M(N.rows, N.cols, (T[N.rows*N.cols]){0}); // clone "main" matrix
 
-    for (uint32_t i = 0; i < rows * cols; i += (rows + 1))
-        _identity_arr[i] = 1;
+    // from here: M is a square matrix
 
-    Matrix<T> _identity(rows, cols, _identity_arr);
-    return _identity;
-} // O(rows * cols) // not yet tested!
+    for (uint32_t i = 0; i < M.rows; i++)
+        M(i,i) = 1;
+
+    return M;
+} // O(rows) // not yet tested!
 
 template <class T>
 bool Matrix<T>::isidentity() const

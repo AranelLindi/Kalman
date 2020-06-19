@@ -11,7 +11,7 @@
 
 
 template<class T>
-std::ostream& operator<<(std::ostream& o, const Matrix<T>& M )
+std::ostream& operator<<(std::ostream& o, const Matrix<T>& M ) // to print matrix easily
 {
    //o << endl;
    for(int i=0;i<M.rows;i++) {
