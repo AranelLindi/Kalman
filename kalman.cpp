@@ -12,7 +12,7 @@ constexpr auto bq = [](double i) noexcept -> double { return (sq(i) * sq(i)); };
 
 // define const 1D Arrays to "convert" them into "2D" matrices
 //                   x  y   x'  y'
-const double x_[] = {0, 0, 10, 0};
+/*const double x_[] = {0, 0, 10, 0};
 const double P_[] = {10, 0, 0, 0,
                      0, 10, 0, 0,
                      0, 0, 10, 0,
@@ -46,11 +46,41 @@ Matrix<double> I(4, 4, I_); // Identity matrix
 Matrix<double> Z(4, 4); // exact size still unknown! TODO (gets filling later...)
 Matrix<double> S(4, 4); // exact size still unknown! TODO (gets filling later...)
 Matrix<double> K(4, 4); // exact size still unknown! TODO (gets filling later...)
-Matrix<double> y(4, 4); // exact size still unknown! TODO (gets filling later...)
+Matrix<double> y(4, 4); // exact size still unknown! TODO (gets filling later...)*/
 
 int main(void)
 {
-    // doesnt work at the moment:
+    /*std::cout << I << std::endl;
+
+    std::cout << I + I << std::endl;
+
+    std::cout << I * I << std::endl;
+
+    std::cout << I - I << std::endl;
+
+    Matrix<double> test(I);
+
+    test *= 4.0;
+    test /= 0;
+    std::cout << test << std::endl;*/
+
+    Matrix<double> A(3,3, (const double[]){3,4,1,2,5,0,9,3,8});
+    //Matrix<double> b(2,1, (const double[]){-1,3});
+
+    //Matrix<double> x(2,1);
+    
+
+    //std::cout << A << std::endl;
+    //std::cout << b << std::endl;
+
+
+    std::cout << A << std::endl;
+        
+    std::cout << A.inverse() << std::endl;
+
+    std::cout << (A.inverse() * A) << std::endl;
+
+    /*// doesnt work at the moment:
     for (size_t i = 0; i < rounds; i++)
     {
         // Prediction
@@ -65,7 +95,10 @@ int main(void)
 
         x = x + (K * y);       // aktualisieren des Systemzustands
         P = (I - (K * H)) * P; // aktualisieren der Kovarianz
-    }
+
+
+        
+    }*/
 
     // sizeof(Matrix<double>) == 32 Bytes
 
