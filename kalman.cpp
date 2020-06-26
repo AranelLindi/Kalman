@@ -5,6 +5,11 @@
 #define dt 0      // Zeitschritt
 #define rounds 10 // iterations to make
 
+
+// debugging
+#define plot(x) std::cout << x << std::endl;
+
+
 // lambdas (constexpr in this case needs C++17! only possible until variables will be used!)
 constexpr auto sq = [](double i) noexcept -> double { return (i * i); };         // square
 constexpr auto cu = [](double i) noexcept -> double { return (sq(i) * i); };     // cubic
@@ -64,28 +69,49 @@ int main(void)
     test /= 0;
     std::cout << test << std::endl;*/
 
-    Matrix<double> A(3,3, (const double[]){3,4,1,2,5,0,9,3,8});
-    //Matrix<double> b(2,1, (const double[]){-1,3});
+    Matrix<double> A(2,2, (const double[]){3,4,2,5});
+    Matrix<double> b(1,2, (const double[]){-1,3});
 
-    //Matrix<double> x(2,1);
+    Matrix<double> x(1,2, (const double[]){-17/7,11/7});
     
+    /*plot(1)
+    for(uint32_t i = 0; i < A.rows; i++)
+        plot(A.getrow(i));
+    
+    plot(2)
+    for(uint32_t i = 0; i < A.cols; i++)
+        plot(A.getcol(i));
 
-    //std::cout << A << std::endl;
-    //std::cout << b << std::endl;
+    plot(3)    
+    plot(A.setcol(1, b));
 
+    plot(4)
+    Matrix<double> y(2,1, (const double[]){0,0});
+    plot(A.setrow(1, y));*/
 
     std::cout << A << std::endl;
-        
-    std::cout << A.inverse() << std::endl;
 
-    std::cout << (A.inverse() * A) << std::endl;
+
+    /*plot(5)
+    plot(A.delcol(1));
+    plot(6)
+    plot(A.delrow(2));
+    plot(7)
+    plot(A.delrow(1));*/
+
+
+    std::cout << A.leftdiv(b) << std::endl;
+
+    std::cout << A.inverse() * b << std::endl;
+
+
 
     /*// doesnt work at the moment:
     for (size_t i = 0; i < rounds; i++)
     {
         // Prediction
         x = A * x;                // Prädizierter Zustand aus Bisherigem und System
-        P = ((A * P) * (~A)) + Q; // Prädizieren der Kovarianz // set brackets to keep correkt order (multiplication)
+        P = ((A * P) * (~A)) + Q; // Prädizieren der Kovarianz // set brackets to keep correct order (multiplication)
 
         // Correction
         // Z =  // Z is getting there new record from measurements (sensors)

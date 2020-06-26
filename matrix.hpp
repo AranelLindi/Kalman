@@ -10,7 +10,7 @@
 #include <iostream> // Konsole (nur Debugging!)
 
 // undefine to disable rang checking
-#define RANGE_CHECK
+//#define RANGE_CHECK
 
 class overdetermined : public std::domain_error
 {
@@ -197,7 +197,7 @@ public:
 
 // DEFINITIONS
 
-template <class T>
+template <class T> // important: enter elements line-by-line NOT column-by-column
 Matrix<T>::Matrix(uint32_t cols, uint32_t rows, const T *elements) : rows(rows), cols(cols), elements(rows * cols, T(0.0))
 {
     if (rows == 0 | cols == 0)
@@ -312,19 +312,23 @@ Matrix<T> Matrix<T>::operator*(const Matrix<T> &M) const
 
     Matrix<T> O(M.cols, N.rows);
 
-    for (uint32_t i = 0; i < N.cols; i++)
-        for (uint32_t j = 0; j < M.rows; j++)
-            for (uint32_t k = 0; k < N.cols; k++)
-                O(i, j) += N(i, k) * M(k, j);
+    for (uint32_t i = 0; i < N.rows; i++)
+        for (uint32_t j = 0; j < M.cols; j++)
+        {
+            kahan_sum<T> sum;
 
+            for (uint32_t k = 0; k < M.rows; k++)
+                sum += N(i, k) * M(k, j);
+
+            O(i, j) = sum;
+        }
     // Anmerkung:
-    // Wegen Ungenauigkeit bei Gleitkommazahlen, entstehen bei Mulitplikation teilweise ungenaue Ergebnisse.
+    // Wegen Ungenauigkeit bei Gleitkommazahlen, entstehen bei Multiplikation teilweise ungenaue Ergebnisse.
     // So müsste mathematisch gesehen eine 0 herauskommen, es wird aber eine sehr kleine Zahl (10^(-16) berechnet.
     // Prüfen ob hier mittels eines Verfahrens gerundet werden kann.
 
-
     return O;
-} // O(n³) // not yet tested! // better solution: strassen algorithm: O(n^2.808) // matrix multiplication
+} // O(n*m*p) (O(n³)) // better solution: strassen algorithm: O(n^2.808) // matrix multiplication
 
 template <class T>
 Matrix<T> &Matrix<T>::operator+=(const Matrix<T> &M)
@@ -354,11 +358,11 @@ Matrix<T> &Matrix<T>::operator-=(const Matrix<T> &M)
 } // O(n) // not yet tested!
 
 template <class T>
-Matrix<T> Matrix<T>::minor(unsigned i, unsigned j) const // returns minor matrix (= original matrix without j-th row  and i-th col)
+Matrix<T> Matrix<T>::minor(uint32_t i, uint32_t j) const // returns minor matrix (= original matrix without j-th row  and i-th col)
 {
     const Matrix<T> &N = *this;
     Matrix<T> M(N.rows - 1, N.cols - 1);
-   
+
     // add elements only that are not effected in i-j-range
     uint32_t counter = 0;
     for (uint32_t _j = 0; _j < N.cols; _j++)
@@ -370,10 +374,10 @@ Matrix<T> Matrix<T>::minor(unsigned i, unsigned j) const // returns minor matrix
 } // O(N²)
 
 template <class T>
-T Matrix<T>::minor_det(unsigned i, unsigned j) const // returns det of minor_matrix (max 3x3 matrices!)
+T Matrix<T>::minor_det(uint32_t i, uint32_t j) const // returns det of minor_matrix (max 3x3 matrices!)
 {
     const Matrix<T> &N = *this;
-    
+
     if (N.rows != N.cols)
         throw std::domain_error("minor_det: incompatible orders");
 
@@ -397,10 +401,10 @@ T Matrix<T>::minor_det(unsigned i, unsigned j) const // returns det of minor_mat
 } // WC: O(n!), BC: O(1) -> function is more efficient the smaller the matrix is // not yet tested!
 
 template <class T>
-T Matrix<T>::det() const // 
+T Matrix<T>::det() const //
 {
     const Matrix<T> &N = *this;
-    
+
     if (N.rows != N.cols)
         throw std::domain_error("det: incompatible orders");
 
@@ -416,11 +420,11 @@ T Matrix<T>::det() const //
         sum -= N(0, 2) * N(1, 1) * N(2, 0);
         sum -= N(0, 0) * N(1, 2) * N(2, 1);
         sum -= N(0, 1) * N(1, 0) * N(2, 2);
-    
+
         return sum;
     }
     else if (N.rows == 2)
-    { // 2x2
+    {                                                                         // 2x2
         return N.elements[0] * N.elements[3] - N.elements[1] * N.elements[2]; // das auch mal mit kahan Summe probieren und vergleichen!
     }
     else // 1x1 because all other cases are excluded by the previous code of this function an calling code
@@ -578,7 +582,7 @@ Matrix<T> Matrix<T>::inverse() const // TODO!
 } // O(n!) // not yet tested!
 
 template <class T>
-Matrix<T> Matrix<T>::getrow(unsigned i) const
+Matrix<T> Matrix<T>::getrow(uint32_t i) const
 {
 #ifdef RANGE_CHECK
     range_check(i, 0);
@@ -586,59 +590,56 @@ Matrix<T> Matrix<T>::getrow(unsigned i) const
 
     const Matrix<T> &N = *this;
 
-    Matrix<T> M(1, N.cols); // one-row-matrix
+    Matrix<T> M(N.cols, 1); // one-row-matrix
 
     // adds just elements that are in the i-th row
     uint32_t counter = 0;
-    for (uint32_t n = i; n < cols; n++)
-        M.elements[counter++] = N(n, i);
+    for (uint32_t n = 0; n < cols; n++)
+        M.elements[counter++] = N(i, n);
 
     return M;
-} // O(cols) -> O(n) if N x N Matrix // not yet tested!
+} // O(cols) -> O(n) if N x N Matrix // tested!
 
 template <class T>
-Matrix<T> Matrix<T>::getcol(unsigned j) const
+Matrix<T> Matrix<T>::getcol(uint32_t j) const
 {
 #ifdef RANGE_CHECK
     range_check(0, j);
 #endif
-
     const Matrix<T> &N = *this;
 
-    Matrix<T> M(N.rows, 1); // one-col-matrix
+    Matrix<T> M(1, N.rows); // one-col-matrix
 
     // adds just elements that are in the j-th column
     uint32_t counter = 0;
-    for (uint32_t n = j; n < rows; n++)
-        M.elements[counter++] = N(j, n);
+    for (uint32_t n = 0; n < rows; n++)
+        M.elements[counter++] = N(n, j);
 
     return M;
-} // O(rows) -> O(n) if N x N Matrix // not yet tested!
+} // O(rows) -> O(n) if N x N Matrix // tested! erneut testen! hab es aus versehen geändert aber wiederhergestellt. sicher gehen!!!!
 
 template <class T>
-Matrix<T> Matrix<T>::delcol(unsigned j) const
+Matrix<T> Matrix<T>::delcol(uint32_t j) const
 {
 #ifdef RANGE_CHECK
     range_check(0, j);
 #endif
-
     const Matrix<T> &N = *this;
 
     // creates Matrix<> with number of fields like N only one column less
-    Matrix<T> M(N.rows, N.cols - 1);
-    //T _modarr[N.rows*(N.cols-1)] = { 0 };
-    uint32_t counter = 0; // counter for arr
+    Matrix<T> M(N.cols - 1, N.rows);
 
-    for (uint32_t n = 0; n < rows * cols; n++)
-        if (!(n % cols == j)) // add every element thats NOT in j-th col to Matrix
-            M.elements[counter++] = N.elements[n];
-    // _modarr[counter++] = N.elements[n];
-
+    uint32_t counter = 0;
+    for(uint32_t i = 0; i < N.rows; i++)
+        for(uint32_t k = 0; k < N.cols; k++)
+            if ((k+1) != j)
+                M.elements[counter++] = N(i, k);
+    
     return M;
-} // O(n²) // not yet tested!
+} // O(n²) // not yet tested! seems to work! more testing!!
 
 template <class T>
-Matrix<T> Matrix<T>::delrow(unsigned i) const
+Matrix<T> Matrix<T>::delrow(uint32_t i) const
 {
 #ifdef RANGE_CHECK
     range_check(i, 0);
@@ -647,19 +648,20 @@ Matrix<T> Matrix<T>::delrow(unsigned i) const
     const Matrix<T> &N = *this;
 
     // creates Matrix<> with number of fields like N only one row less
-    Matrix<T> M(N.rows - 1, N.cols);
+    Matrix<T> M(N.cols, N.rows - 1);
 
     uint32_t counter = 0; // counter for arr
 
-    for (uint32_t n = 0; n < rows * cols; n++)
-        if (!(n / rows == i)) // add every element thats NOT in the i-th row to Matrix
-            M.elements[counter++] = N.elements[n];
+    for (uint32_t j = 0; j < N.cols; j++)
+        for (uint32_t k = 0; k < N.rows; k++)
+            if ((k+1) != i)
+                M.elements[counter++] = N(k, j);
 
     return M;
-} // O(n²) // not yet tested!
+} // O(n²) // not yet tested! seems to work! more testing!!!
 
 template <class T>
-Matrix<T> &Matrix<T>::setcol(unsigned j, const Matrix<T> &C)
+Matrix<T> &Matrix<T>::setcol(uint32_t j, const Matrix<T> &C)
 {
 #ifdef RANGE_CHECK
     range_check(0, j);
@@ -668,36 +670,35 @@ Matrix<T> &Matrix<T>::setcol(unsigned j, const Matrix<T> &C)
     Matrix<T> &N = *this;
 
     // check dimensions of C:
-    if (C.cols != N.cols || C.rows != 1)
-        throw std::domain_error("matrix set col: incompatible matrix C");
+    //if (C.rows != N.rows || C.rows != 1)
+    //    throw std::domain_error("matrix set col: incompatible matrix C");
 
     // everythings fine, lets go!
     for (uint32_t n = 0; n < N.rows; n++)
-        N(j, n) = C(0, n);
+        N(n, j) = C(0, n);
 
     return N;
-} // O(N.rows) -> O(n) if N is squared matrix // not yet tested!
+} // O(N.rows) -> O(n) if N is squared matrix // tested!
 
 template <class T>
-Matrix<T> &Matrix<T>::setrow(unsigned i, const Matrix<T> &R)
+Matrix<T> &Matrix<T>::setrow(uint32_t i, const Matrix<T> &R)
 {
 #ifdef RANGE_CHECK
     range_check(i, 0);
 #endif
 
-    const Matrix<T> &N = *this;
-    Matrix<T> M(N);
+    Matrix<T> &N = *this;
 
     // check dimensions of R
-    if (R.row != N.rows || R.cols != 1)
-        throw std::domain_error("matrix set row: incompatible matrix R");
+    //if (R.cols != N.cols || R.cols != 1)
+    //    throw std::domain_error("matrix set row: incompatible matrix R");
 
     // everythings fine, lets go!
     for (uint32_t n = 0; n < N.cols; n++)
-        M(n, i) = R(n, 0);
+        N(i, n) = R(n, 0);
 
-    return M;
-}
+    return N;
+} // O(N.cols) // tested!
 
 template <class T>
 Matrix<T> Matrix<T>::identity() const
@@ -707,7 +708,7 @@ Matrix<T> Matrix<T>::identity() const
     if (N.rows != N.cols)
         throw std::domain_error("matrix identity: incompatible orders");
 
-    Matrix<T> M(N.rows, N.cols, (T[N.rows * N.cols]){0}); // create zero-matrix with equal dimensions
+    Matrix<T> M(N.cols, N.rows); // create zero-matrix with equal dimensions
 
     // from here: M is a square matrix
 
@@ -749,7 +750,7 @@ Matrix<T> Matrix<T>::transpose() const
 
     Matrix<T> _transp(cols, rows, &(this->elements[0])); // this was discussed in Scott Meyers' Effective STL, that you can do &vec[0] to get the address of the first element of an std::vector (https://stackoverflow.com/questions/4289612/getting-array-from-stdvector)
 
-#pragma omp parallel for // helpful?
+    //#pragma omp parallel for // helpful?
     for (uint32_t n = 0; n < rows * cols; n++)
     {
         uint32_t i = n / rows;
