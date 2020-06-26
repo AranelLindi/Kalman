@@ -104,7 +104,7 @@ public:
     }
 
     // constructors
-    Matrix(uint32_t rows, uint32_t columns, const T *elements = 0);
+    Matrix(uint32_t columns, uint32_t rows, const T *elements = 0);
     Matrix(const Matrix<T> &M);
     // destructor
     ~Matrix();
@@ -198,7 +198,7 @@ public:
 // DEFINITIONS
 
 template <class T>
-Matrix<T>::Matrix(uint32_t rows, unsigned cols, const T *elements) : rows(rows), cols(cols), elements(rows * cols, T(0.0))
+Matrix<T>::Matrix(uint32_t cols, uint32_t rows, const T *elements) : rows(rows), cols(cols), elements(rows * cols, T(0.0))
 {
     if (rows == 0 | cols == 0)
         throw std::range_error("attempt to create a degenerate matrix");
