@@ -83,10 +83,18 @@ int main(void)
     //std::cout << A << std::endl;
     //std::cout << B << std::endl;
 
-    std::cout << A.leftdiv(b) << std::endl;
+    std::cout << A.inverse()*A << std::endl;
+    std::cout << A.leftdiv(A) << std::endl;
     //std::cout << A.rightdiv(B) << std::endl;
     //std::cout << '\n' << B.leftdiv(A) << std::endl;
-    //std::cout << B.rightdiv(A) << std::endl;*/
+    //std::cout << b.rightdiv(A) << std::endl;
+
+    //plot(O.setcol(0, A.getcol(1)));
+    //plot(O.setrow(1, A.getrow(0)));
+    //plot(A.delcol(0));
+    //plot(A.delcol(1));
+    //plot(A.delrow(0));
+    //plot(A.delrow(1));
 
     /*plot(1)
     plot(A.delcol(0));
