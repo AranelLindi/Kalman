@@ -12,6 +12,8 @@
 // undefine to disable rang checking
 //#define RANGE_CHECK
 
+#undef minor
+
 class overdetermined : public std::domain_error
 {
 public:
@@ -228,6 +230,8 @@ Matrix<T> &Matrix<T>::operator=(const Matrix<T> &cp)
 template <class T>
 void Matrix<T>::range_check(uint32_t i, uint32_t j) const
 {
+    //std::cout << "range_error:" << i << "," << j << '\n';
+    //std::cout << "matrix:" << (*this).cols << "," << (*this).rows << std::endl;
     if (rows <= i)
         throw std::range_error("matrix access row out of range");
     if (cols <= j)
@@ -446,8 +450,12 @@ Matrix<T> Matrix<T>::leftdiv(const Matrix<T> &D) const
     if (N.cols > 1)
     {
         // break this down for each column of the numerator
-        for (uint32_t j = 0; j < Q.cols; j++)
+        for (uint32_t j = 0; j < Q.cols; j++) {
+            std::cout << "div:\n" << Q << std::endl;
+            std::cout << N.getcol(j) << std::endl;
+            std::cout << N.getcol(j).leftdiv(D) << std::endl;
             Q.setcol(j, N.getcol(j).leftdiv(D)); // note: recursive
+        }
         return Q;
     }
 
@@ -507,6 +515,7 @@ Matrix<T> Matrix<T>::leftdiv(const Matrix<T> &D) const
         {
             Matrix<T> A(D); // make a copy of the D matrix
             // replace column with numerator vector
+            //std::cout << "setcol-leftdiv:\n" << N << std::endl;
             A.setcol(j, N);
             Q(j, 0) = A.det() / ddet;
         }
@@ -585,17 +594,18 @@ template <class T>
 Matrix<T> Matrix<T>::getrow(uint32_t i) const
 {
 #ifdef RANGE_CHECK
-    range_check(i, 0);
+std::cout << "getrow:" << "0," << i << '\n' << *this << std::endl;
+    range_check(0, i);
 #endif
 
     const Matrix<T> &N = *this;
 
-    Matrix<T> M(N.cols, 1); // one-row-matrix
+    Matrix<T> M(N.cols, 1);
 
-    // adds just elements that are in the i-th row
     uint32_t counter = 0;
-    for (uint32_t n = 0; n < cols; n++)
-        M.elements[counter++] = N(i, n);
+
+    for(uint32_t f = i*N.cols; counter < N.cols; f++)
+        M.elements[counter++] = N.elements[f];
 
     return M;
 } // O(cols) -> O(n) if N x N Matrix // tested!
@@ -604,16 +614,17 @@ template <class T>
 Matrix<T> Matrix<T>::getcol(uint32_t j) const
 {
 #ifdef RANGE_CHECK
-    range_check(0, j);
+std::cout << "getcol:" << j << ", 0" << '\n' << *this << std::endl;
+    range_check(j, 0);
 #endif
     const Matrix<T> &N = *this;
 
-    Matrix<T> M(1, N.rows); // one-col-matrix
+    Matrix<T> M(1, N.rows);
 
-    // adds just elements that are in the j-th column
     uint32_t counter = 0;
-    for (uint32_t n = 0; n < rows; n++)
-        M.elements[counter++] = N(n, j);
+
+    for(uint32_t f = j; counter < N.rows; f+= N.cols)
+        M.elements[counter++] = N.elements[f];
 
     return M;
 } // O(rows) -> O(n) if N x N Matrix // tested! erneut testen! hab es aus versehen geändert aber wiederhergestellt. sicher gehen!!!!
@@ -622,19 +633,19 @@ template <class T>
 Matrix<T> Matrix<T>::delcol(uint32_t j) const
 {
 #ifdef RANGE_CHECK
-    range_check(0, j);
+std::cout << "delcol:" << j << ", 0" << '\n' << *this << std::endl;
+    range_check(j, 0);
 #endif
     const Matrix<T> &N = *this;
 
-    // creates Matrix<> with number of fields like N only one column less
     Matrix<T> M(N.cols - 1, N.rows);
 
     uint32_t counter = 0;
-    for(uint32_t i = 0; i < N.rows; i++)
-        for(uint32_t k = 0; k < N.cols; k++)
-            if ((k+1) != j)
-                M.elements[counter++] = N(i, k);
-    
+
+    for(uint32_t f = 0; counter < N.cols-1; f++)
+        if (f != j)
+            M.setcol(counter++, N.getcol(f));
+
     return M;
 } // O(n²) // not yet tested! seems to work! more testing!!
 
@@ -642,21 +653,20 @@ template <class T>
 Matrix<T> Matrix<T>::delrow(uint32_t i) const
 {
 #ifdef RANGE_CHECK
-    range_check(i, 0);
+std::cout << "delrow:" << "0," << i << '\n' << *this << std::endl;
+    range_check(0, i);
 #endif
 
     const Matrix<T> &N = *this;
 
-    // creates Matrix<> with number of fields like N only one row less
     Matrix<T> M(N.cols, N.rows - 1);
 
-    uint32_t counter = 0; // counter for arr
+    uint32_t counter = 0;
 
-    for (uint32_t j = 0; j < N.cols; j++)
-        for (uint32_t k = 0; k < N.rows; k++)
-            if ((k+1) != i)
-                M.elements[counter++] = N(k, j);
-
+    for(uint32_t f = 0; counter < N.rows-1; f++)
+        if (f != i)
+            M.setrow(counter++, N.getrow(f));
+        
     return M;
 } // O(n²) // not yet tested! seems to work! more testing!!!
 
@@ -664,19 +674,17 @@ template <class T>
 Matrix<T> &Matrix<T>::setcol(uint32_t j, const Matrix<T> &C)
 {
 #ifdef RANGE_CHECK
-    range_check(0, j);
+std::cout << (*this).cols << std::endl;
+std::cout << "setcol:" << j << ", 0" << '\n' << *this << std::endl;
+    range_check(j, 0);
 #endif
 
     Matrix<T> &N = *this;
-
-    // check dimensions of C:
-    //if (C.rows != N.rows || C.rows != 1)
-    //    throw std::domain_error("matrix set col: incompatible matrix C");
-
-    // everythings fine, lets go!
-    for (uint32_t n = 0; n < N.rows; n++)
-        N(n, j) = C(0, n);
-
+    
+    uint32_t counter = 0;
+    for(uint32_t f = j; counter < C.rows; f+= N.cols)
+        N.elements[f] = C.elements[counter++];
+    
     return N;
 } // O(N.rows) -> O(n) if N is squared matrix // tested!
 
@@ -684,18 +692,16 @@ template <class T>
 Matrix<T> &Matrix<T>::setrow(uint32_t i, const Matrix<T> &R)
 {
 #ifdef RANGE_CHECK
-    range_check(i, 0);
+std::cout << "setrow:" << "0," << i << '\n' << *this << std::endl;
+    range_check(0, i);
 #endif
 
     Matrix<T> &N = *this;
 
-    // check dimensions of R
-    //if (R.cols != N.cols || R.cols != 1)
-    //    throw std::domain_error("matrix set row: incompatible matrix R");
+    uint32_t counter = 0;
 
-    // everythings fine, lets go!
-    for (uint32_t n = 0; n < N.cols; n++)
-        N(i, n) = R(n, 0);
+    for(uint32_t f = i*N.cols; counter < R.cols; f++)
+        N.elements[f] = R.elements[counter++]; // note that booth use same index, counter gets incremented after R access for next iteration
 
     return N;
 } // O(N.cols) // tested!

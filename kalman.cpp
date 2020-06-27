@@ -74,36 +74,45 @@ int main(void)
 
     Matrix<double> x(1,2, (const double[]){-17/7,11/7});
     
-    /*plot(1)
-    for(uint32_t i = 0; i < A.rows; i++)
-        plot(A.getrow(i));
-    
-    plot(2)
-    for(uint32_t i = 0; i < A.cols; i++)
-        plot(A.getcol(i));
 
-    plot(3)    
-    plot(A.setcol(1, b));
+    Matrix<double> B(2,2, (const double[]){2,1,3,5});
 
-    plot(4)
-    Matrix<double> y(2,1, (const double[]){0,0});
-    plot(A.setrow(1, y));*/
+    Matrix<double> O(2,2, (const double[]){9,9,9,9});
+    Matrix<double> P(2,2, (const double[]){0,0,0,0});
 
-    std::cout << A << std::endl;
-
-
-    /*plot(5)
-    plot(A.delcol(1));
-    plot(6)
-    plot(A.delrow(2));
-    plot(7)
-    plot(A.delrow(1));*/
-
+    //std::cout << A << std::endl;
+    //std::cout << B << std::endl;
 
     std::cout << A.leftdiv(b) << std::endl;
+    //std::cout << A.rightdiv(B) << std::endl;
+    //std::cout << '\n' << B.leftdiv(A) << std::endl;
+    //std::cout << B.rightdiv(A) << std::endl;*/
 
-    std::cout << A.inverse() * b << std::endl;
-
+    /*plot(1)
+    plot(A.delcol(0));
+    plot(2)
+    plot(A.delcol(1));
+    plot(3)
+    plot(A.delrow(0));
+    plot(4)
+    plot(A.delrow(1));
+    plot(5)
+    plot(A.getrow(0));
+    plot(6)
+    plot(A.getrow(1));
+    plot(7)
+    plot(A.getcol(0));
+    plot(8)
+    plot(A.getcol(1));*/
+    /*plot(9)
+    plot(A.setcol(0, O));
+    plot(A.setcol(1, O));
+    plot(A.setcol(0, P));
+    plot(A.setcol(1, P));
+    plot(A.setrow(0, O));
+    plot(A.setrow(1, O));
+    plot(A.setrow(0, P));
+    plot(A.setrow(1, P));*/
 
 
     /*// doesnt work at the moment:
