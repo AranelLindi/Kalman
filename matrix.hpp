@@ -446,7 +446,8 @@ Matrix<T> Matrix<T>::leftdiv(const Matrix<T> &D) const
     if (N.rows != D.rows)
         throw std::domain_error("matrix divide: incompatible orders");
 
-    Matrix<T> Q(D.cols, N.cols); // quotient matrix
+    //Matrix<T> Q(D.cols, N.cols); // quotient matrix
+    Matrix<T> Q(N.cols, D.cols); // debug!
 
     if (N.cols > 1)
     {
@@ -514,7 +515,8 @@ Matrix<T> Matrix<T>::leftdiv(const Matrix<T> &D) const
             Matrix<T> A(D); // make a copy of the D matrix
             // replace column with numerator vector
             A.setcol(j, N);
-            Q(j, 0) = A.det() / ddet;
+            auto test = A.det() / ddet; // debug
+            Q(0, j) = A.det() / ddet; // debug: Q(0, j)
         }
     }
     else
@@ -757,12 +759,22 @@ Matrix<T> Matrix<T>::pow(uint32_t exp) const
 template <class T>
 Matrix<T> Matrix<T>::transpose() const
 {
-    // in-situ is no option, because original matrix will be used farther
     const Matrix<T> &N = *this;
 
-    Matrix<T> _transp(cols, rows, &(this->elements[0])); // this was discussed in Scott Meyers' Effective STL, that you can do &vec[0] to get the address of the first element of an std::vector (https://stackoverflow.com/questions/4289612/getting-array-from-stdvector)
+    //Matrix<T> _transp(cols, rows, &(this->elements[0])); // this was discussed in Scott Meyers' Effective STL, that you can do &vec[0] to get the address of the first element of an std::vector (https://stackoverflow.com/questions/4289612/getting-array-from-stdvector)
 
-    //#pragma omp parallel for // helpful?
+    Matrix<T> Tr(N.rows, N.cols); // swap number of cols & rows
+
+    if(N.rows == 1 || N.cols == 1) // just copy
+        for(uint32_t i = 0; i < N.rows * N.cols; i++)
+            Tr.elements[i] = N.elements[i];
+    else // swap elements (i, j) -> (j, i), except for elements with i==j but costs are negligible
+        for(uint32_t i = 0; i < N.cols; i++)
+            for(uint32_t j = 0; j < N.rows; j++)
+                Tr(j, i) = N(i, j);
+    
+
+    /*//#pragma omp parallel for // helpful?
     for (uint32_t n = 0; n < rows * cols; n++)
     {
         uint32_t i = n / rows;
@@ -771,7 +783,8 @@ Matrix<T> Matrix<T>::transpose() const
         _transp.elements[n] = N(i, j); // TESTING!
     }
 
-    return _transp;
+    return _transp;*/
+    return Tr;
 } // O(N²) // not yet tested!
 
 #endif // matrix.h

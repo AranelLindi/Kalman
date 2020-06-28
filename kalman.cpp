@@ -10,10 +10,10 @@
 #define plot(x) std::cout << x << std::endl;
 
 
-// lambdas (constexpr in this case needs C++17! only possible until variables will be used!)
-constexpr auto sq = [](double i) noexcept -> double { return (i * i); };         // square
-constexpr auto cu = [](double i) noexcept -> double { return (sq(i) * i); };     // cubic
-constexpr auto bq = [](double i) noexcept -> double { return (sq(i) * sq(i)); }; // biquadrate
+// lambdas
+const auto sq = [](double i) noexcept -> double { return (i * i); };         // square
+const auto cu = [](double i) noexcept -> double { return (sq(i) * i); };     // cubic
+const auto bq = [](double i) noexcept -> double { return (sq(i) * sq(i)); }; // biquadrate
 
 // define const 1D Arrays to "convert" them into "2D" matrices
 //                   x  y   x'  y'
@@ -55,19 +55,25 @@ Matrix<double> y(4, 4); // exact size still unknown! TODO (gets filling later...
 
 int main(void)
 {
-    /*std::cout << I << std::endl;
+    /* Exemplarische Vorgehensweise:
+        folgende Matrix soll abgebildet werden:
+        [ 1 2 3 ]
+        [ 4 5 6 ]
 
-    std::cout << I + I << std::endl;
+        das entspricht:
 
-    std::cout << I * I << std::endl;
+        Matrix<double> M(3, 2, (const double[]){1, 2, 3, 4, 5, 6});
 
-    std::cout << I - I << std::endl;
+        Konstruktor:
+        erstes Argument: Anzahl Spalten
+        zweites Argument: Anzahl Zeilen
+        drittes Argument: Zeilenweise eingeben
 
-    Matrix<double> test(I);
+        
+        Matrix<T> ist nullbasiert:
 
-    test *= 4.0;
-    test /= 0;
-    std::cout << test << std::endl;*/
+        M(0,0) liefert erstes Element
+    */ 
 
     Matrix<double> A(2,2, (const double[]){3,4,2,5});
     Matrix<double> b(1,2, (const double[]){-1,3});
@@ -80,48 +86,10 @@ int main(void)
     Matrix<double> O(2,2, (const double[]){9,9,9,9});
     Matrix<double> P(2,2, (const double[]){0,0,0,0});
 
-    //std::cout << A << std::endl;
-    //std::cout << B << std::endl;
+    
+    plot(A.inverse()*b) // richtiges Ergebnis!
 
-    std::cout << A.inverse()*A << std::endl;
-    std::cout << A.leftdiv(A) << std::endl;
-    //std::cout << A.rightdiv(B) << std::endl;
-    //std::cout << '\n' << B.leftdiv(A) << std::endl;
-    //std::cout << b.rightdiv(A) << std::endl;
-
-    //plot(O.setcol(0, A.getcol(1)));
-    //plot(O.setrow(1, A.getrow(0)));
-    //plot(A.delcol(0));
-    //plot(A.delcol(1));
-    //plot(A.delrow(0));
-    //plot(A.delrow(1));
-
-    /*plot(1)
-    plot(A.delcol(0));
-    plot(2)
-    plot(A.delcol(1));
-    plot(3)
-    plot(A.delrow(0));
-    plot(4)
-    plot(A.delrow(1));
-    plot(5)
-    plot(A.getrow(0));
-    plot(6)
-    plot(A.getrow(1));
-    plot(7)
-    plot(A.getcol(0));
-    plot(8)
-    plot(A.getcol(1));*/
-    /*plot(9)
-    plot(A.setcol(0, O));
-    plot(A.setcol(1, O));
-    plot(A.setcol(0, P));
-    plot(A.setcol(1, P));
-    plot(A.setrow(0, O));
-    plot(A.setrow(1, O));
-    plot(A.setrow(0, P));
-    plot(A.setrow(1, P));*/
-
+    plot(b.leftdiv(A));
 
     /*// doesnt work at the moment:
     for (size_t i = 0; i < rounds; i++)
