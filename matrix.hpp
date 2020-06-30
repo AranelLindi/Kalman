@@ -330,17 +330,17 @@ Matrix<T> Matrix<T>::operator*(const Matrix<T> &M) const
             // (not sure if this is help and useful... watch it!)
             // intension: entire instruction is evaluated at compile time
             // thus an optimization is guaranteed
-            if (constexpr(std::is_same<T, float>))
+            if constexpr (std::is_same<T, float>::value)
             {
                 if (abs(sum) < 10e-6)
                     sum = 0;
             }
-            else if (constexpr(std::is_same<T, double>))
+            else if constexpr (std::is_same<T, double>::value)
             {
                 if (abs(sum) < 10e-12)
                     sum = 0;
             }
-            else if (constexpr(std::is_same<T, long double>))
+            else if constexpr (std::is_same<T, long double>::value)
             {
                 if (abs(sum) < 10e-16)
                     sum = 0;
@@ -413,7 +413,7 @@ Matrix<T> Matrix<T>::minor(uint32_t i, uint32_t j) const // returns minor matrix
 } // O(N²)
 
 template <class T>
-T Matrix<T>::minor_det(uint32_t i, uint32_t j) const // returns det of minor_matrix (max 3x3 matrices!)
+T Matrix<T>::minor_det(uint32_t i, uint32_t j) const // returns det of minor_matrix (max. 3x3 matrices!)
 {
     const Matrix<T> &N = *this;
 
@@ -448,16 +448,26 @@ T Matrix<T>::det() const //
 
     // from here on: N is square matrix
 
-    if (N.rows == 3)
+    if (N.rows > 3) {
+        kahan_sum<T> det;
+
+        for(uint32_t i = 0; i < N.cols; i++)
+            for(uint32_t j = 0; j < N.rows; j++){
+                det += N.minor(i, j).det();
+            }
+        
+        return det;
+    }
+    else if (N.rows == 3)
     { // 3x3
         kahan_sum<T> sum;
         // gleiches auch mal ohne kahan probieren und vergleichen!
         sum += N(0, 0) * N(1, 1) * N(2, 2);
-        sum += N(0, 1) * N(1, 2) * N(2, 0);
-        sum += N(0, 2) * N(1, 0) * N(2, 1);
+        sum += N(1, 0) * N(2, 1) * N(0, 2);
+        sum += N(2, 0) * N(0, 1) * N(1, 2);
         sum -= N(0, 2) * N(1, 1) * N(2, 0);
-        sum -= N(0, 0) * N(1, 2) * N(2, 1);
-        sum -= N(0, 1) * N(1, 0) * N(2, 2);
+        sum -= N(1, 2) * N(2, 1) * N(0, 0);
+        sum -= N(2, 2) * N(0, 1) * N(1, 0);
 
         return sum;
     }
