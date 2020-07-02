@@ -5,10 +5,8 @@
 #define dt 0      // Zeitschritt
 #define rounds 10 // iterations to make
 
-
 // debugging
 #define plot(x) std::cout << x << std::endl;
-
 
 // lambdas
 const auto sq = [](double i) noexcept -> double { return (i * i); };         // square
@@ -73,7 +71,19 @@ int main(void)
         Matrix<T> ist nullbasiert:
 
         M(0,0) liefert erstes Element
-    */ 
+    */
+
+    //Matrix<double> AdjM(5, 5, (const double[]){0,5,2,12,3,-5,-6,-1,0,1,7,2,3,9,8,0,0,7,3,-2,5,-1,-8,-3,5});
+    //Matrix<double> M(3,3, (const double[]){5,2,3,2,-3,6,5,6,-1,9,6,1,-3,7,9,2});
+
+    //plot(M);
+
+    //plot(M.det());
+
+    //Matrix<double> T = M;
+    //plot(M.inverse());
+    
+    //plot(AdjM.inverse());
 
     Matrix<double> A(2,2, (const double[]){3,4,2,5});
     Matrix<double> b(1,2, (const double[]){-1,3});
@@ -87,9 +97,11 @@ int main(void)
     Matrix<double> P(2,2, (const double[]){0,0,0,0});
 
     
-    plot(A.inverse()*b) // richtiges Ergebnis!
+    //plot(A.inverse()*b) // richtiges Ergebnis!
 
-    plot(b.leftdiv(A));
+    //plot(b.leftdiv(A));
+
+    plot(A.inverse() * A);
 
     /*// doesnt work at the moment:
     for (size_t i = 0; i < rounds; i++)

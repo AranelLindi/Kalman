@@ -1,19 +1,24 @@
 /*
+    Creator: Stefan Lindörfer, 02.07.2020
+
+    Dieses File enthält ein Gerüst für eine Matrix. Es ist für kleinere Matrizen (bis max. 5x5) optimiert
+    und enthält alle wichtigen Matrizenoperationen. Dafür sind verschiedene Operatorenüberladungen vorhanden.
+    Bei Fragen oder Anregungen gerne an mich wenden.
+    
  partial source: https://www.drdobbs.com/a-c-matrix-template-class/184403323?pgno=1
 */
-
 
 #ifndef MATRIX_H
 #define MATRIX_H
 
-// Standartbibliothek
+// STL
 #include <vector>    // vector
 #include <cstdint>   // uint types
 #include <stdexcept> // exceptions
 #include <cmath>     // pow
 
 // undefine to disable rang checking
-#define RANGE_CHECK
+//#define RANGE_CHECK // RANGE_CHECK verursacht Fehler und fängt fälschlicherweise korrekten Index ab. Überprüfen wo das passiert!
 
 // undefine to disable error calculation
 #define ROUNDTOZERO
@@ -55,6 +60,11 @@ public:
         T old_sum = sum;
         T next = val + cor;
         cor = ((sum -= val) - old_sum) + next;
+        return *this;
+    }
+    kahan_sum<T> &operator=(const T &val) {
+        sum = val;
+        cor = 0;
         return *this;
     }
     operator T &() { return sum; }
@@ -240,7 +250,6 @@ void Matrix<T>::range_check(uint32_t i, uint32_t j) const
         throw std::range_error("matrix access col out of range");
 }
 
-// TODO:
 template <class T>
 bool Matrix<T>::operator==(const Matrix<T> &A) const
 {
@@ -278,6 +287,7 @@ template <class T>
 bool Matrix<T>::iszero() const
 {
     const Matrix<T> &N = *this;
+
     for (uint32_t i = 0; i < rows * cols; i++)
         if (N.elements[i] != 0)
             return false;
@@ -450,10 +460,10 @@ T Matrix<T>::det() const //
 
     if (N.rows > 3) {
         kahan_sum<T> det;
-
-        for(uint32_t i = 0; i < N.cols; i++)
+        //                      FUNKTIONIERT NOCH NICHT !!
+        //for(uint32_t i = 0; i < N.cols; i++)
             for(uint32_t j = 0; j < N.rows; j++){
-                det += N.minor(i, j).det();
+                det += N.minor(0, j).det();
             }
         
         return det;
@@ -490,7 +500,7 @@ Matrix<T> Matrix<T>::leftdiv(const Matrix<T> &D) const
         throw std::domain_error("matrix divide: incompatible orders");
 
     //Matrix<T> Q(D.cols, N.cols); // quotient matrix
-    Matrix<T> Q(N.cols, D.cols); // debug!
+    Matrix<T> Q(N.cols, D.cols); // debug! // scheint die richtige Matrix zu sein, die obere stellt Ergebnis immer transponiert dar
 
     if (N.cols > 1)
     {
@@ -752,10 +762,9 @@ Matrix<T> Matrix<T>::pow(uint32_t exp) const
         return N;            // A^1 = A
     else if (exp == 0)       // for completeness to cover all possibilites. shouldn't slow recursion
         return N.identity(); // A^0 = E
-    else
-    {                            // A^n = A*A*...(n-times)...*A*A
-        return N * pow(exp - 1); // RECURSIVE!
-    }
+    else            
+        return N * pow(exp - 1); // RECURSIVE! // A^n = A*A*...(n-times)...*A*A
+
 } // O(exp) // not yet tested!
 
 template <class T>
