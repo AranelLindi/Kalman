@@ -15,33 +15,33 @@ const auto bq = [](double i) noexcept -> double { return (sq(i) * sq(i)); }; // 
 
 // define const 1D Arrays to "convert" them into "2D" matrices
 //                   x  y   x'  y'
-/*const double x_[] = {0, 0, 10, 0};
+const double x_[] = {0, 0, 10, 0}; // Systemzustand
 const double P_[] = {10, 0, 0, 0,
                      0, 10, 0, 0,
                      0, 0, 10, 0,
-                     0, 0, 0, 10};
+                     0, 0, 0, 10}; // Kovarianzmatrix
 const double A_[] = {1, 0, dt, 0,
                      0, 1, 0, dt,
                      0, 0, 1, 0,
-                     0, 0, 0, 1};
+                     0, 0, 0, 1}; // Dynamikmatrix
 const double H_[] = {0, 0, 1, 0,
-                     0, 0, 0, 1};
+                     0, 0, 0, 1}; // Messmatrix
 const double R_[] = {10, 0,
-                     0, 10};
+                     0, 10}; // Messrauschkovarianzmatrix
 const double Q_[] = {0.25 * bq(dt), 0.25 * bq(dt), 0.5 * cu(dt), 0.5 * cu(dt),
                      0.25 * bq(dt), 0.25 * bq(dt), 0.5 * cu(dt), 0.5 * cu(dt),
                      0.5 * cu(dt), 0.5 * cu(dt), sq(dt), sq(dt),
-                     0.5 * cu(dt), 0.5 * cu(dt), sq(dt), sq(dt)};
+                     0.5 * cu(dt), 0.5 * cu(dt), sq(dt), sq(dt)}; // Prozessrauschkovarianzmatrix
 const double I_[] = {1, 0, 0, 0,
                      0, 1, 0, 0,
                      0, 0, 1, 0,
-                     0, 0, 0, 1};
+                     0, 0, 0, 1}; // Einheitsmatrix
 
 // initialize matrices
-Matrix<double> x(4, 1, x_);
+Matrix<double> x(1, 4, x_);
 Matrix<double> P(4, 4, P_);
 Matrix<double> A(4, 4, A_);
-Matrix<double> H(2, 4, H_);
+Matrix<double> H(4, 2, H_);
 Matrix<double> R(2, 2, R_);
 Matrix<double> Q(4, 4, Q_);
 Matrix<double> I(4, 4, I_); // Identity matrix
@@ -60,7 +60,7 @@ int main(void)
 
         das entspricht:
 
-        Matrix<double> M(3, 2, (const double[]){1, 2, 3, 4, 5, 6});
+        Matrix<int> M(3, 2, (const int[]){1, 2, 3, 4, 5, 6});
 
         Konstruktor:
         erstes Argument: Anzahl Spalten
@@ -73,41 +73,10 @@ int main(void)
         M(0,0) liefert erstes Element
     */
 
-    //Matrix<double> AdjM(5, 5, (const double[]){0,5,2,12,3,-5,-6,-1,0,1,7,2,3,9,8,0,0,7,3,-2,5,-1,-8,-3,5});
-    //Matrix<double> M(3,3, (const double[]){5,2,3,2,-3,6,5,6,-1,9,6,1,-3,7,9,2});
-
-    //plot(M);
-
-    //plot(M.det());
-
-    //Matrix<double> T = M;
-    //plot(M.inverse());
-    
-    //plot(AdjM.inverse());
-
-    Matrix<double> A(2,2, (const double[]){3,4,2,5});
-    Matrix<double> b(1,2, (const double[]){-1,3});
-
-    Matrix<double> x(1,2, (const double[]){-17/7,11/7});
-    
-
-    Matrix<double> B(2,2, (const double[]){2,1,3,5});
-
-    Matrix<double> O(2,2, (const double[]){9,9,9,9});
-    Matrix<double> P(2,2, (const double[]){0,0,0,0});
-
-    
-    //plot(A.inverse()*b) // richtiges Ergebnis!
-
-    //plot(b.leftdiv(A));
-
-    plot(A.inverse() * A);
-
-    /*// doesnt work at the moment:
     for (size_t i = 0; i < rounds; i++)
     {
         // Prediction
-        x = A * x;                // Prädizierter Zustand aus Bisherigem und System
+        x = A * x;                // Prädizierter Zustand aus bisherigem und System
         P = ((A * P) * (~A)) + Q; // Prädizieren der Kovarianz // set brackets to keep correct order (multiplication)
 
         // Correction
@@ -118,12 +87,7 @@ int main(void)
 
         x = x + (K * y);       // aktualisieren des Systemzustands
         P = (I - (K * H)) * P; // aktualisieren der Kovarianz
-
-
         
-    }*/
-
-    // sizeof(Matrix<double>) == 32 Bytes
-
-    //Matrix<int> i(2,2, (const int[]){0,1,2,3}); // passing anonymous array as argument (C++11)
+        plot(x);
+    }
 }

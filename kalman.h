@@ -1,10 +1,9 @@
 #ifndef KALMAN_H
 #define KALMAN_H
 
-// Standartbibiothek
-#include <cstdint>  // integer-Types
-#include <iostream> // Konsole
-//#include <iomanip>
+// Standartbibliothek
+#include <cstdint>  // Integer-Types
+#include <iostream> // Konsole (Debugging)
 
 // eigener Code
 #include "matrix.hpp"
