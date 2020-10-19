@@ -15,7 +15,7 @@ std::ostream &operator<<(std::ostream &o, const Matrix<T> &M) noexcept // to pri
    for (uint32_t i {0}; i < M.rows; i++)
    {
       o << "[ ";
-      for (int j {0}; j < M.cols; j++)
+      for (uint32_t j {0}; j < M.cols; j++)
          o << M(i, j) << " ";
       o << "]" << '\n';
    }
