@@ -11,7 +11,7 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
-// STL
+// Standardbibliothek
 #include <vector>    // vector
 #include <cstdint>   // uint types
 #include <stdexcept> // exceptions

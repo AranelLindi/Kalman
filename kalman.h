@@ -1,7 +1,7 @@
 #ifndef KALMAN_H
 #define KALMAN_H
 
-// Standartbibliothek
+// Standardbibliothek
 #include <cstdint>  // Integer-Types
 #include <iostream> // Konsole (Debugging)
 
@@ -9,13 +9,13 @@
 #include "matrix.hpp"
 
 template <class T>
-std::ostream &operator<<(std::ostream &o, const Matrix<T> &M) // to print matrix easily
+std::ostream &operator<<(std::ostream &o, const Matrix<T> &M) noexcept // to print matrix easily
 {
    //o << endl;
-   for (int i = 0; i < M.rows; i++)
+   for (uint32_t i {0}; i < M.rows; i++)
    {
       o << "[ ";
-      for (int j = 0; j < M.cols; j++)
+      for (int j {0}; j < M.cols; j++)
          o << M(i, j) << " ";
       o << "]" << '\n';
    }
