@@ -46,33 +46,33 @@ public:
 template <class T>
 class kahan_sum
 { // implements Kahan Summation method
+
+    T sum; // running sum
+    T cor; // correction term
+
 public:
-    kahan_sum() : sum(0.0), cor(0.0) {}
-    kahan_sum<T> &operator+=(const T &val)
+    kahan_sum() noexcept : sum(0.0), cor(0.0) {}
+    kahan_sum<T> &operator+=(const T &val) noexcept
     {
         T old_sum = sum;
         T next = val - cor;
         cor = ((sum += next) - old_sum) - next;
         return *this;
     }
-    kahan_sum<T> &operator-=(const T &val)
+    kahan_sum<T> &operator-=(const T &val) noexcept
     {
         T old_sum = sum;
         T next = val + cor;
         cor = ((sum -= val) - old_sum) + next;
         return *this;
     }
-    kahan_sum<T> &operator=(const T &val)
+    kahan_sum<T> &operator=(const T &val) noexcept
     {
         sum = val;
         cor = 0;
         return *this;
     }
-    operator T &() { return sum; }
-
-private:
-    T sum; // running sum
-    T cor; // correction term
+    operator T &() noexcept { return sum; }
 };
 
 template <class T>
