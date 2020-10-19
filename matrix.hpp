@@ -238,7 +238,7 @@ Matrix<T> &Matrix<T>::operator=(const Matrix<T> &cp)
 {
     if (cp.rows != rows && cp.cols != cols)
         throw std::domain_error("matrix op= not of same order");
-    for (uint32_t i {0}; i < rows * cols; i++)
+    for (uint32_t i{0}; i < rows * cols; i++)
         elements[i] = cp.elements[i];
     return *this;
 } // O(rows*cols)
@@ -246,7 +246,7 @@ Matrix<T> &Matrix<T>::operator=(const Matrix<T> &cp)
 template <class T>
 void Matrix<T>::range_check(uint32_t i, uint32_t j) const
 {
-    const Matrix<T> &N {*this};
+    const Matrix<T> &N{*this};
 
     if (N.cols <= i)
         throw std::range_error("matrix access col out of range");
@@ -257,14 +257,14 @@ void Matrix<T>::range_check(uint32_t i, uint32_t j) const
 template <class T>
 bool Matrix<T>::operator==(const Matrix<T> &A) const noexcept
 {
-    const Matrix<T> &N {*this};
+    const Matrix<T> &N{*this};
 
     // check dimension:
     if (N.rows != A.rows | N.cols != A.cols)
         return false;
 
     // every field must be equal to its equivalent in the other matrix:
-    for (uint32_t i {0}; i < rows * cols; i++)
+    for (uint32_t i{0}; i < rows * cols; i++)
         if (N.elements[i] != A.elements[i])
             return false;
 
@@ -274,14 +274,14 @@ bool Matrix<T>::operator==(const Matrix<T> &A) const noexcept
 template <class T>
 bool Matrix<T>::operator!=(const Matrix<T> &A) const noexcept
 {
-    const Matrix<T> &N {*this};
+    const Matrix<T> &N{*this};
 
     // check dimension:
     if (N.rows == A.rows | N.cols == A.cols)
         return false;
 
     // every field must be equal to its equivalent in the other matrix:
-    for (uint32_t i {0}; i < rows * cols; i++)
+    for (uint32_t i{0}; i < rows * cols; i++)
         if (N.elements[i] == A.elements[i])
             return false;
 
@@ -291,9 +291,9 @@ bool Matrix<T>::operator!=(const Matrix<T> &A) const noexcept
 template <class T>
 bool Matrix<T>::iszero() const noexcept
 {
-    const Matrix<T> &N {*this};
+    const Matrix<T> &N{*this};
 
-    for (uint32_t i {0}; i < rows * cols; i++)
+    for (uint32_t i{0}; i < rows * cols; i++)
         if (N.elements[i] != 0)
             return false;
 
@@ -303,9 +303,9 @@ bool Matrix<T>::iszero() const noexcept
 template <class T>
 Matrix<T> &Matrix<T>::operator*=(const T &a) noexcept // Skalarmultiplikation
 {
-    Matrix<T> &N {*this};
+    Matrix<T> &N{*this};
 
-    for (uint32_t i {0}; i < rows * cols; i++)
+    for (uint32_t i{0}; i < rows * cols; i++)
         N.elements[i] *= a;
 
     return N;
@@ -314,12 +314,12 @@ Matrix<T> &Matrix<T>::operator*=(const T &a) noexcept // Skalarmultiplikation
 template <class T>
 Matrix<T> &Matrix<T>::operator/=(const T &a)
 {
-    Matrix<T> &N {*this};
+    Matrix<T> &N{*this};
 
     if (a == 0)
         throw std::logic_error("matrix scalar division: divide by zero");
 
-    for (uint32_t i {0}; i < rows * cols; i++)
+    for (uint32_t i{0}; i < rows * cols; i++)
         N.elements[i] /= a;
 
     return N;
@@ -328,7 +328,7 @@ Matrix<T> &Matrix<T>::operator/=(const T &a)
 template <class T>
 Matrix<T> Matrix<T>::operator*(const Matrix<T> &M) const
 {
-    const Matrix<T> &N {*this};
+    const Matrix<T> &N{*this};
 
     // condition multiplication:
     if (N.cols != M.rows)
@@ -336,8 +336,8 @@ Matrix<T> Matrix<T>::operator*(const Matrix<T> &M) const
 
     Matrix<T> O(M.cols, N.rows);
 
-    for (uint32_t i {0}; i < N.rows; i++)
-        for (uint32_t j {0}; j < M.cols; j++)
+    for (uint32_t i{0}; i < N.rows; i++)
+        for (uint32_t j{0}; j < M.cols; j++)
         {
             kahan_sum<T> sum;
 
@@ -372,7 +372,7 @@ Matrix<T> Matrix<T>::operator*(const Matrix<T> &M) const
 template <class T>
 Matrix<T> &Matrix<T>::operator+=(const Matrix<T> &M)
 {
-    Matrix<T> &N {*this};
+    Matrix<T> &N{*this};
 
     if (N.cols != M.cols || N.rows != M.rows)
         throw std::domain_error("matrix addition: incompatible orders");
@@ -380,7 +380,7 @@ Matrix<T> &Matrix<T>::operator+=(const Matrix<T> &M)
     // from here on: both matrices have same dimension
 
     // simply add component by component
-    for (uint32_t i {0}; i < rows * cols; i++)
+    for (uint32_t i{0}; i < rows * cols; i++)
         N.elements[i] += M.elements[i];
 
     return N;
@@ -389,7 +389,7 @@ Matrix<T> &Matrix<T>::operator+=(const Matrix<T> &M)
 template <class T>
 Matrix<T> &Matrix<T>::operator-=(const Matrix<T> &M)
 {
-    Matrix<T> &N {*this};
+    Matrix<T> &N{*this};
 
     if (N.cols != M.cols || N.rows != M.rows)
         throw std::domain_error("matrix subtraction: incompatible orders");
@@ -397,7 +397,7 @@ Matrix<T> &Matrix<T>::operator-=(const Matrix<T> &M)
     // from here on: both matrices have same dimension
 
     // simply substract component by component
-    for (uint32_t i {0}; i < rows * cols; i++)
+    for (uint32_t i{0}; i < rows * cols; i++)
         N.elements[i] -= M.elements[i];
 
     return N;
@@ -406,7 +406,7 @@ Matrix<T> &Matrix<T>::operator-=(const Matrix<T> &M)
 template <class T>
 Matrix<T> Matrix<T>::minor(uint32_t i, uint32_t j) const noexcept // gibt eine zu N reduzierte Matrix zurück (ohne i-te Spalte und j-te Zeile)
 {
-    const Matrix<T> &N {*this};
+    const Matrix<T> &N{*this};
 
     // N withouth i-th column and j-th row
     return N.delcol(i).delrow(j);
@@ -415,7 +415,7 @@ Matrix<T> Matrix<T>::minor(uint32_t i, uint32_t j) const noexcept // gibt eine z
 template <class T>
 T Matrix<T>::minor_det(uint32_t i, uint32_t j) const // berechnet die Determinante einer Matrix ohne i-te Spalte und j-te Zeile
 {
-    const Matrix<T> &N {*this};
+    const Matrix<T> &N{*this};
 
     if (N.rows != N.cols)
         throw std::domain_error("minor_det: incompatible orders");
@@ -429,7 +429,7 @@ T Matrix<T>::minor_det(uint32_t i, uint32_t j) const // berechnet die Determinan
         // matrix is bigger than 3x3 and must be reduced:           DO LATER!
         kahan_sum<T> sum;
 
-        for (uint32_t i {0}; i < N.rows; i++)
+        for (uint32_t i{0}; i < N.rows; i++)
             sum += N.minor_det(0, i);
 
         return sum;
@@ -439,7 +439,7 @@ T Matrix<T>::minor_det(uint32_t i, uint32_t j) const // berechnet die Determinan
 template <class T>
 T Matrix<T>::det() const //
 {
-    const Matrix<T> &N {*this};
+    const Matrix<T> &N{*this};
 
     if (N.rows != N.cols)
         throw std::domain_error("det: incompatible orders");
@@ -450,10 +450,11 @@ T Matrix<T>::det() const //
     {
         kahan_sum<T> det;
         //                      FUNKTIONIERT NOCH NICHT !!
-        for (uint32_t j {0}; j < N.rows; j++)
+        for (uint32_t j{0}; j < N.rows; j++)
         {
-            T coeff = ((1 + (j+1)) % 2 == 0 ? 1 : -1) * N(0, j);
-            if (coeff == 0) continue;
+            T coeff = ((1 + (j + 1)) % 2 == 0 ? 1 : -1) * N(0, j);
+            if (coeff == 0)
+                continue;
             T delta = coeff * (N.minor(0, j)).det();
             /*if (delta > 0)
                 det += delta;
@@ -467,7 +468,7 @@ T Matrix<T>::det() const //
     else if (N.rows == 3)
     { // 3x3 (Sarrus Rule)
         kahan_sum<T> sum;
-        
+
         sum += N(0, 0) * N(1, 1) * N(2, 2);
         sum += N(1, 0) * N(2, 1) * N(0, 2);
         sum += N(2, 0) * N(0, 1) * N(1, 2);
@@ -486,7 +487,7 @@ T Matrix<T>::det() const //
 template <class T>
 Matrix<T> Matrix<T>::leftdiv(const Matrix<T> &D) const
 {
-    const Matrix<T> &N {*this};
+    const Matrix<T> &N{*this};
 
     if (N.rows != D.rows)
         throw std::domain_error("matrix divide: incompatible orders");
@@ -510,11 +511,11 @@ Matrix<T> Matrix<T>::leftdiv(const Matrix<T> &D) const
 
     if (D.rows > D.cols)
     {
-        bool solution {false};
-        for (uint32_t i {0}; i < D.rows; i++)
+        bool solution{false};
+        for (uint32_t i{0}; i < D.rows; i++)
         {
-            Matrix<T> D2 {D.delrow(i)}; // delete a row from the matrix
-            Matrix<T> N2 {N.delrow(i)};
+            Matrix<T> D2{D.delrow(i)}; // delete a row from the matrix
+            Matrix<T> N2{N.delrow(i)};
             Matrix<T> Q2(Q);
             try
             {
@@ -552,7 +553,7 @@ Matrix<T> Matrix<T>::leftdiv(const Matrix<T> &D) const
 
     if (D.cols <= 3)
     {
-        T ddet {D.det()};
+        T ddet{D.det()};
 
         if (ddet == T0)
             throw underdetermined();
@@ -569,11 +570,11 @@ Matrix<T> Matrix<T>::leftdiv(const Matrix<T> &D) const
         // this method optimizes the determinant calculations by saving a cofactors used in calculating the denominator determinant.
         kahan_sum<T> sum;
         std::vector<T> cofactors(D.cols); // save cofactors
-        for (uint32_t j {0}; j < D.cols; j++)
+        for (uint32_t j{0}; j < D.cols; j++)
         {
-            T c {D.minor_det(0, j)};
+            T c{D.minor_det(0, j)};
             cofactors[j] = c;
-            T a {D(0, j)};
+            T a{D(0, j)};
             if (a != T0)
             {
                 a *= c;
@@ -583,7 +584,7 @@ Matrix<T> Matrix<T>::leftdiv(const Matrix<T> &D) const
                     sum += a;
             }
         }
-        T ddet {sum};
+        T ddet{sum};
         if (ddet == T0)
             throw underdetermined();
         for (uint32_t j = 0; j < D.cols; j++)
@@ -591,9 +592,9 @@ Matrix<T> Matrix<T>::leftdiv(const Matrix<T> &D) const
             Matrix<T> A(D);
             A.setcol(j, N);
             kahan_sum<T> ndet;
-            for (uint32_t k {0}; k < D.cols; k++)
+            for (uint32_t k{0}; k < D.cols; k++)
             {
-                T a {A(0, k)};
+                T a{A(0, k)};
                 if (a != T0)
                 {
                     if (k == j)
@@ -615,7 +616,7 @@ Matrix<T> Matrix<T>::leftdiv(const Matrix<T> &D) const
 template <class T>
 Matrix<T> Matrix<T>::inverse() const
 {
-    const Matrix<T> &N {*this};
+    const Matrix<T> &N{*this};
 
     T _det = N.det();
 
@@ -628,8 +629,8 @@ Matrix<T> Matrix<T>::inverse() const
     Matrix<T> adjoint(N.cols, N.rows);
 
     // calculate and save determinant for every minor matrix
-    for (uint32_t j {0}; j < N.cols; j++)
-        for (uint32_t i {0}; i < N.rows; i++)
+    for (uint32_t j{0}; j < N.cols; j++)
+        for (uint32_t i{0}; i < N.rows; i++)
             adjoint(i, j) = N.minor_det(i, j) / _det;
 
     return adjoint;
@@ -638,12 +639,12 @@ Matrix<T> Matrix<T>::inverse() const
 template <class T>
 Matrix<T> Matrix<T>::getrow(uint32_t i) const noexcept
 {
-    const Matrix<T> &N {*this};
+    const Matrix<T> &N{*this};
 
     Matrix<T> M(N.cols, 1); // create one col-matrix (vector)
 
-    uint32_t counter {0}; // count columns
-    for (uint32_t f {i * N.cols}; counter < N.cols; f++)
+    uint32_t counter{0}; // count columns
+    for (uint32_t f{i * N.cols}; counter < N.cols; f++)
         M.elements[counter++] = N.elements[f];
 
     return M;
@@ -652,12 +653,12 @@ Matrix<T> Matrix<T>::getrow(uint32_t i) const noexcept
 template <class T>
 Matrix<T> Matrix<T>::getcol(uint32_t j) const noexcept
 {
-    const Matrix<T> &N {*this};
+    const Matrix<T> &N{*this};
 
     Matrix<T> M(1, N.rows); // create one row-matrix
 
-    uint32_t counter {0}; // count rows
-    for (uint32_t f {j}; counter < N.rows; f += N.cols)
+    uint32_t counter{0}; // count rows
+    for (uint32_t f{j}; counter < N.rows; f += N.cols)
         M.elements[counter++] = N.elements[f];
 
     return M;
@@ -666,12 +667,12 @@ Matrix<T> Matrix<T>::getcol(uint32_t j) const noexcept
 template <class T>
 Matrix<T> Matrix<T>::delcol(uint32_t j) const noexcept
 {
-    const Matrix<T> &N {*this};
+    const Matrix<T> &N{*this};
 
     Matrix<T> M(N.cols - 1, N.rows); // one column less than N
 
-    uint32_t counter {0}; // count columns
-    for (uint32_t f {0}; counter < N.cols - 1; f++)
+    uint32_t counter{0}; // count columns
+    for (uint32_t f{0}; counter < N.cols - 1; f++)
         if (f != j)
             M.setcol(counter++, N.getcol(f));
 
@@ -681,12 +682,12 @@ Matrix<T> Matrix<T>::delcol(uint32_t j) const noexcept
 template <class T>
 Matrix<T> Matrix<T>::delrow(uint32_t i) const noexcept
 {
-    const Matrix<T> &N {*this};
+    const Matrix<T> &N{*this};
 
     Matrix<T> M(N.cols, N.rows - 1); // one row less than N
 
-    uint32_t counter {0}; // count rows
-    for (uint32_t f {0}; counter < N.rows - 1; f++)
+    uint32_t counter{0}; // count rows
+    for (uint32_t f{0}; counter < N.rows - 1; f++)
         if (f != i)
             M.setrow(counter++, N.getrow(f));
 
@@ -696,10 +697,10 @@ Matrix<T> Matrix<T>::delrow(uint32_t i) const noexcept
 template <class T>
 Matrix<T> &Matrix<T>::setcol(uint32_t j, const Matrix<T> &C) noexcept
 {
-    Matrix<T> &N {*this};
+    Matrix<T> &N{*this};
 
-    uint32_t counter {0}; // count rows
-    for (uint32_t f {j}; counter < N.rows; f += N.cols)
+    uint32_t counter{0}; // count rows
+    for (uint32_t f{j}; counter < N.rows; f += N.cols)
         N.elements[f] = C.elements[counter++];
 
     return N;
@@ -708,10 +709,10 @@ Matrix<T> &Matrix<T>::setcol(uint32_t j, const Matrix<T> &C) noexcept
 template <class T>
 Matrix<T> &Matrix<T>::setrow(uint32_t i, const Matrix<T> &R) noexcept
 {
-    Matrix<T> &N {*this};
+    Matrix<T> &N{*this};
 
-    uint32_t counter {0}; // count columns
-    for (uint32_t f {i * N.cols}; counter < N.cols; f++)
+    uint32_t counter{0}; // count columns
+    for (uint32_t f{i * N.cols}; counter < N.cols; f++)
         N.elements[f] = R.elements[counter++];
 
     return N;
@@ -720,7 +721,7 @@ Matrix<T> &Matrix<T>::setrow(uint32_t i, const Matrix<T> &R) noexcept
 template <class T>
 Matrix<T> Matrix<T>::identity() const
 {
-    const Matrix<T> &N {*this};
+    const Matrix<T> &N{*this};
 
     if (N.rows != N.cols)
         throw std::domain_error("matrix identity: incompatible orders");
@@ -729,7 +730,7 @@ Matrix<T> Matrix<T>::identity() const
 
     // from here: M is a square matrix
 
-    for (uint32_t i {0}; i < M.rows; i++)
+    for (uint32_t i{0}; i < M.rows; i++)
         M(i, i) = 1;
 
     return M;
@@ -738,7 +739,7 @@ Matrix<T> Matrix<T>::identity() const
 template <class T>
 bool Matrix<T>::isidentity() const noexcept
 {
-    const Matrix<T> &N {*this};
+    const Matrix<T> &N{*this};
 
     return (N.identity() == N);
 } // O(rows*cols)
@@ -746,7 +747,7 @@ bool Matrix<T>::isidentity() const noexcept
 template <class T>
 Matrix<T> Matrix<T>::pow(uint32_t exp) const
 {
-    const Matrix<T> &N {*this};
+    const Matrix<T> &N{*this};
 
     if (rows != cols)
         throw std::domain_error("matrix pow: incompatible orders");
@@ -763,17 +764,17 @@ Matrix<T> Matrix<T>::pow(uint32_t exp) const
 template <class T>
 Matrix<T> Matrix<T>::transpose() const noexcept
 {
-    const Matrix<T> &N {*this};
+    const Matrix<T> &N{*this};
 
     Matrix<T> N_T(N.rows, N.cols); // swap number of cols & rows
 
     // case distinction:
     if (N.rows == 1 || N.cols == 1) // just copy
-        for (uint32_t i {0}; i < N.rows * N.cols; i++)
+        for (uint32_t i{0}; i < N.rows * N.cols; i++)
             N_T.elements[i] = N.elements[i];
     else // swap elements (i, j) -> (j, i), except for elements with i==j but costs are negligible
-        for (uint32_t i {0}; i < N.cols; i++)
-            for (uint32_t j {0}; j < N.rows; j++)
+        for (uint32_t i{0}; i < N.cols; i++)
+            for (uint32_t j{0}; j < N.rows; j++)
                 N_T(j, i) = N(i, j);
 
     return N_T;

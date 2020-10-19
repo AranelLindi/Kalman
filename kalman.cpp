@@ -96,3 +96,5 @@ int main(void)
 }
 
 // Quelle und gute Erklärung: https://www.cbcity.de/das-kalman-filter-einfach-erklaert-teil-2
+
+// Gute Seiten für maschinelle Matrix Operationen: https://rechneronline.de/lineare-algebra/matrizen.php (unterschiedlich große Matrizen)
