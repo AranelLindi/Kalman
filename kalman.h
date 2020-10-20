@@ -4,6 +4,7 @@
 // Standardbibliothek
 #include <cstdint>  // Integer-Types
 #include <iostream> // Konsole (Debugging)
+#include <cstdlib>  // Generierung von Zufallszahlen
 
 // eigener Code
 #include "matrix.hpp"
@@ -12,10 +13,10 @@ template <class T>
 std::ostream &operator<<(std::ostream &o, const Matrix<T> &M) noexcept // to print matrix easily
 {
    //o << endl;
-   for (uint32_t i {0}; i < M.rows; i++)
+   for (uint32_t i{0}; i < M.rows; i++)
    {
       o << "[ ";
-      for (uint32_t j {0}; j < M.cols; j++)
+      for (uint32_t j{0}; j < M.cols; j++)
          o << M(i, j) << " ";
       o << "]" << '\n';
    }

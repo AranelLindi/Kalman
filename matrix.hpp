@@ -222,7 +222,7 @@ Matrix<T>::Matrix(uint32_t cols, uint32_t rows, const T *elements) : rows(rows),
 
     // initialize from array
     if (elements)
-        for (uint32_t i = 0; i < rows * cols; i++)
+        for (uint32_t i{0}; i < rows * cols; i++)
             this->elements[i] = elements[i];
 }
 
@@ -238,6 +238,7 @@ Matrix<T> &Matrix<T>::operator=(const Matrix<T> &cp)
 {
     if (cp.rows != rows && cp.cols != cols)
         throw std::domain_error("matrix op= not of same order");
+
     for (uint32_t i{0}; i < rows * cols; i++)
         elements[i] = cp.elements[i];
     return *this;
